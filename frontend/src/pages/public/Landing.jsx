@@ -1,7 +1,7 @@
 
 function Landing() {
     return(
-        <text>hello world</text>
+        <text>hello</text>
     )
 }
 
