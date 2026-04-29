@@ -17,8 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from nailmanagement.app.api.auth import register
+from nailmanagement.app.api.auth import sign_in
+
+BASE_URL = "api/auth"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/auth/register/", register)
+    path(f"{BASE_URL}/register/", register),
+    path(f"{BASE_URL}/login/", sign_in)
 ]

@@ -5,22 +5,41 @@ from nailmanagement.app.services.auth import UserAuthentication
 
 auth = UserAuthentication()
 
-#Add checks for duplicate emails/usernames
-@csrf_exempt
+@csrf_exempt #remove after testing from Postman
 def register(request):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
             email = body["email"]
             password = body["password"]
+            firstName = body["firstName"]
+            lastName = body["lastName"]
+            phone = body["phone"]
 
-            response = auth.sign_up(email, password)
+            response = auth.sign_up(email, password, firstName, lastName, phone)
+
             return JsonResponse({
-                "id": str(response.user.id),
-                "email": response.user.email,
-                "token": response.session.access_token if response.session else None
+                "userID": str(response.data[0]["user_id"]),
+                "firstName": response.data[0]["first_name"],
+                "lastName": response.data[0]["last_name"]
             })
         
         except Exception as e:
             return JsonResponse({"error": str(e)}, status = 400)
-    
+        
+#does not yet include names for registering
+def sign_in(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            email = body["email"]
+            password = body["password"]
+
+            response = auth.login(email, password)
+            return JsonResponse({
+                "id": str(response.user.id),
+                "name": response.user.email,
+                "token": response.session.access_token if response.session else None
+            })
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status = 400)
