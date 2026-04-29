@@ -1,0 +1,11 @@
+table_catalog,table_schema,table_name,table_type,self_referencing_column_name,reference_generation,user_defined_type_catalog,user_defined_type_schema,user_defined_type_name,is_insertable_into,is_typed,commit_action
+postgres,public,nail_techs,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,shops,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,users,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,commissions,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,nail_appointments,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,nail_appointment_services,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,skills,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,nail_tech_attendance,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,nail_tech_skills,BASE TABLE,null,null,null,null,null,YES,NO,null
+postgres,public,shop_services,BASE TABLE,null,null,null,null,null,YES,NO,null
