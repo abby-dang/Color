@@ -18,6 +18,9 @@ def register(request):
 
             response = auth.sign_up(email, password, firstName, lastName, phone)
 
+            if response is None or isinstance(response, dict):
+                return JsonResponse({"Error": "Registration failed"}, status=400)
+            
             return JsonResponse({
                 "userID": str(response.data[0]["user_id"]),
                 "firstName": response.data[0]["first_name"],
@@ -26,8 +29,8 @@ def register(request):
         
         except Exception as e:
             return JsonResponse({"error": str(e)}, status = 400)
-        
-#does not yet include names for registering
+
+@csrf_exempt #remove after testing from Postman
 def sign_in(request):
     if request.method == "POST":
         try:
