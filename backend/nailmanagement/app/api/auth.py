@@ -46,3 +46,9 @@ def sign_in(request):
             })
         except Exception as e:
             return JsonResponse({"error": str(e)}, status = 400)
+        
+@csrf_exempt
+def sign_out(request):
+    if request.method == "POST":
+        response = auth.logout()
+        return JsonResponse(response)

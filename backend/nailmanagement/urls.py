@@ -18,11 +18,13 @@ from django.contrib import admin
 from django.urls import path
 from nailmanagement.app.api.auth import register
 from nailmanagement.app.api.auth import sign_in
+from nailmanagement.app.api.auth import sign_out
 
 BASE_URL = "api/auth"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(f"{BASE_URL}/register/", register),
-    path(f"{BASE_URL}/login/", sign_in)
+    path(f"{BASE_URL}/login/", sign_in),
+    path(f"{BASE_URL}/logout/", sign_out)
 ]
