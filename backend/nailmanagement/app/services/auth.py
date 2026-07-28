@@ -89,6 +89,7 @@ class UserAuthentication:
         Returns:
             dict: Success message
         """
+    
         supabase.auth.sign_out()
         return {"message":"Successfully logged out"}
 

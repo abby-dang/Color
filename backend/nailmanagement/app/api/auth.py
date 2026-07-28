@@ -49,6 +49,12 @@ def sign_in(request):
         
 @csrf_exempt
 def sign_out(request):
+
     if request.method == "POST":
-        response = auth.logout()
-        return JsonResponse(response)
+        try:
+            response = auth.logout()
+            return JsonResponse(response)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status = 500)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status = 405)
