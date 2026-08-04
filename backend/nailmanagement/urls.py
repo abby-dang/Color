@@ -16,15 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from nailmanagement.app.api.auth import register
+from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in
 from nailmanagement.app.api.auth import sign_out
-
+from nailmanagement.app.api.shops import register as shop_register
 BASE_URL = "api/auth"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(f"{BASE_URL}/register/", register),
+    path(f"{BASE_URL}/register/", account_register),
     path(f"{BASE_URL}/login/", sign_in),
-    path(f"{BASE_URL}/logout/", sign_out)
+    path(f"{BASE_URL}/logout/", sign_out),
+
+    #shop registration
+    path(f"{BASE_URL}/shop_registration/", shop_register)
 ]

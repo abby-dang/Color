@@ -1,5 +1,6 @@
 from nailmanagement.app.db.supabase_client import supabase
 import re
+from nailmanagement.app.services.utils import valid_phone, valid_email, valid_password
 class UserAuthentication:
 
     def sign_up(self, email: str, password: str, firstName: str, lastName: str, phone: str) -> dict:
@@ -20,14 +21,15 @@ class UserAuthentication:
             Exception: If database insert fails
         """
         #PASSWORD CHECK
-        if not self.__valid_password(password):
+        if not valid_password(password):
             raise ValueError("Password does not meet requirements")
         
         #PHONE CHECK
-        validPhoneNum = re.match(r"^\d{10}$", phone)
-
-        if not validPhoneNum:
+        if not valid_phone(phone):
             raise  ValueError("Phone number is not in the correct format")
+
+        if not valid_email(email):
+            raise ValueError("Email is not in the correct format")
         
         #REGISTERS AUTHENTICATION TO SUPABASE
         auth = supabase.auth.sign_up(
@@ -112,7 +114,7 @@ class UserAuthentication:
         Returns:
             UserResponse: Supabase user data object
         """
-        if not self.__valid_password(new_password):
+        if not valid_password(new_password):
             raise ValueError("Password does not meet requirements")
         
         try:
@@ -130,22 +132,3 @@ class UserAuthentication:
             raise e
         
     
-    def __valid_password(self, password: str) -> bool:
-        """
-        Checks if password meets the minimum requirements
-
-        Returns:
-            bool: True if password meets requirement, false otherwise
-        
-        """
-        #PASSWORD CHECK
-        hasValidLength = len(password) >= 8
-        hasAtLeastOneUpperCase = re.search(r"[A-Z]", password)
-        hasAtLeastOneLowerCase = re.search(r"[a-z]", password)
-        hasAtLeastOneNum = re.search(r"\d", password)
-        hasAtLeastOneSpecialChar = re.search(r"[^a-zA-Z0-9]", password)
-
-        if not (hasValidLength and hasAtLeastOneLowerCase and hasAtLeastOneNum and hasAtLeastOneSpecialChar and hasAtLeastOneUpperCase):
-            return False
-        
-        return True
