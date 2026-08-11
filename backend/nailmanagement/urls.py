@@ -20,6 +20,7 @@ from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in
 from nailmanagement.app.api.auth import sign_out
 from nailmanagement.app.api.shops import register as shop_register
+from nailmanagement.app.api.shops import getCommissionTotal
 BASE_URL = "api/auth"
 
 urlpatterns = [
@@ -29,5 +30,8 @@ urlpatterns = [
     path(f"{BASE_URL}/logout/", sign_out),
 
     #shop registration
-    path(f"{BASE_URL}/shop_registration/", shop_register)
+    path(f"{BASE_URL}/shop_registration/", shop_register),
+
+    #shop information
+    path(f"{BASE_URL}/shoplanding/", getCommissionTotal)
 ]

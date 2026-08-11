@@ -2,7 +2,7 @@ import bcrypt
 import re
 
 def hash_pin(pin: int) -> str:
-    hashed = bcrypt.hashpw(pin.encode("utf-8"), bcrypt.gensalt())
+    hashed = bcrypt.hashpw(pin.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     return hashed
 
 def verify_pin(pin: int) -> bool:
@@ -16,6 +16,16 @@ def valid_phone(phone: str) -> bool:
 def valid_email(email: str) -> bool:
     validEmail = re.match("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email)
     return validEmail
+def valid_weekdays(days: str) -> bool:
+    validSet = {"s","m","t","w","th","f","sat"}
+    cleaned = days.replace(" ", "")
+    splitDays = cleaned.split(",")
+
+    for d in splitDays:
+        if not (d in validSet):
+            return False
+
+    return True
 
 def valid_password(password: str) -> bool:
     """
