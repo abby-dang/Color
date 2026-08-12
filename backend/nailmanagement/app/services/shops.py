@@ -2,10 +2,32 @@ from nailmanagement.app.db.supabase_client import supabase
 import re
 import time
 from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays
+from datetime import datetime
 class Shops:
 
     #EDITING SHOP INFO
     def register_shop(self, name: str, phone: str, pin: str, address: str, open_t: time, close_t: time, email: str, close_d: str, open_d: str, ownerID: int):
+        """
+        Registers shop by inserting shop information into the database table
+
+        Args:
+            name (str): Shop name
+            phone (str): Shop contact phone number
+            pin (str): Shop pin for authorization to insert information
+            address (str): The physical address of the shop
+            open_t (time): When the shop opens
+            close_t (time): When the shop closes
+            email (str): Shop contact email
+            close_d (str): a string of abbreviated days separated by commas when the shop is closed
+            open_d (str): a string of abbreviated days separated by commas when the shop is open
+            owner_id (int): the owner's identification number
+        
+        Returns:
+            dict: Newly registered shop record 
+        
+        Raises: 
+            Exception: If database insert fails
+        """
         #CHECK NAME
         if len(name) > 100:
             raise ValueError("Name of shop is too long")
@@ -43,11 +65,100 @@ class Shops:
 
             raise e
 
+    def get_shops(self, uuid: str, ownerID: int) -> list:
+        """
+        Returns a list of shops
+
+        Args:
+            uuid (str): user identification
+            ownerID (int): owner identification number
+
+        Returns:
+            list: of the shop_id and name
+
+        Raises: 
+            Exception: if invalid access or query fails 
+        """
+        try:
+            userID = (
+                supabase.table("users")
+                .select("user_id")
+                .eq("uuid", uuid)
+                .execute().data
+            )
+
+            if not userID:
+                raise ValueError("User not found")
+
+            userID = userID[0]["user_id"]
+
+            if userID != ownerID:
+                raise ValueError("Invalid access")
+
+            #TODO: EDIT TO ALLOW PHOTO RETRIEVAL
+            response = (
+                supabase.table("shops")
+                .select("shop_id, name")
+                .eq("owner_id", ownerID)
+                .execute()
+            )
+
+            return response.data
+        
+        except Exception as e:
+            print(f"Error retrieving shop info for owner_id {ownerID}")
+            raise e
+        
+    def get_shop_info(self, uuid: str, shopID: int) -> dict:
+        """
+        Retrieves shop information
+
+        Args: 
+            uuid (str): user identification
+            shopID (int): shop identification number
+
+        Returns:
+            dict: containing the shop_id, owner_id, name, address, email, phone, opne_t, close_t, open_d, close_d
+        
+        Raises: 
+            Exception: if the shopID is invalid or query error
+        """
+        try:
+
+            response = (
+                supabase.table("shops")
+                .select("*")
+                .eq("shop_id", shopID)
+                .execute().data[0]
+            )
+
+            if not response: 
+                raise ValueError("Shop not found")
+
+            return response
+
+        except Exception as e:
+
+            print(f"Error retrieving shop information for {shopID}")
+
+            raise e
 
     #FETCHING SHOP INFO 
     #ONLY OWNER CAN VIEW
     def get_shop_commission_total(self, shopID: int, uuid: str) -> float:
+        """
+        Get the total commissions of techs associated with the shop
 
+        Args:
+            shopID (int): shop identification number
+            uuid: user identification
+
+        Returns:
+            float: the total commission 
+        
+        Raises: 
+            Exception: if invalid access or query error
+        """
         try:
             userID = (
                 supabase.table("users")
@@ -78,7 +189,6 @@ class Shops:
                 return 0
 
             else:
-                #TODO: FIX THIS SO THAT IT RESPONDS TO THE DATA RETURNED
                 total = 0
                 for commission in response.data:
                     total += float(commission["service_amount"])
@@ -91,18 +201,28 @@ class Shops:
             raise e
 
     #TODO: NEEDS TO BE TESTED
-    def get_shop_nail_techs(self, shopID: int) -> list:
+    def get_shop_techs(self, uuid: str, shopID: int) -> list:
+        """
+        Retrieves a list of all techs associated with a shop
 
+        Args:
+            uuid (str): user identification
+            shopID (int): shop identification number
+        
+        Returns:
+            list: of user identification numbers
+
+        Raises:
+            Exception: if query issues
+        """
+        #TODO: authorization check
         try:
             response = (
-                supabase.table("nail_techs")
+                supabase.table("techs")
                 .select("user_id")
                 .eq("shop_id", shopID)
                 .execute()
             )
-
-            if response is None:
-                raise ValueError("Unable to query nail_techs table")
 
             return response.data
 
@@ -112,18 +232,28 @@ class Shops:
 
             raise e
     #TODO: NEEDS TO BE TESTED
-    def get_shop_services(self, shopID: int) -> list:
+    def get_shop_services(self, uuid: str, shopID: int) -> list:
+        """
+        Retrieves a list of all shop services
 
+        Args:
+            uuid(str): user identification
+            shopID(int): shop identification number
+
+        Returns:
+            list: of shop service name, description, price, and duration
+        
+        Raises:
+            Exception: if issue querying
+        """
+        #TODO: authorization check
         try:
             response = (
                 supabase.table("shop_services")
-                .select("name, description, print, duration")
+                .select("name, description, price, duration")
                 .eq("shop_id", shopID)
                 .execute()
             )
-
-            if response is None:
-                raise ValueError("Unable to query shop_services table")
 
             return response.data
 
@@ -133,8 +263,21 @@ class Shops:
 
             raise e
     #TODO: NEEDS TO BE TESTED
-    def get_shop_skills(self, shopID: int) -> list:
+    def get_shop_skills(self, uuid: str, shopID: int) -> list:
+        """
+        Retrieves a list of all shop skills
+        
+        Args:
+            uuid(str): user identification
+            shopID(int): shop identification number
 
+        Returns:
+            list: a list of skill names
+        
+        Raises:
+            Exception: If querying fails
+        """
+        #TODO: authorization check
         try:
             response = (
                 supabase.table("shop_skills")
@@ -143,14 +286,45 @@ class Shops:
                 .execute()
             )
 
-            if response is None:
-                raise ValueError("Issue querying join from shop_skills and skills table")
-
             return response.data
 
         except Exception as e:
 
             print(f"Error retrieving shop skills for shop {shopID}")
+
+            raise e
+
+    def get_shop_appointments(self, uuid: str, day: datetime, shopID: int) -> list:
+        """
+        Retrieves all appointments associated with a shop on a given day
+
+        Args:
+            uuid (str): user identification
+            day (datetime): the desired day 
+            shopID (int): shop identification number
+        
+        Returns:
+            list: a list of appointments' appointment_id, client_name, time, status
+        
+        Raises:
+            Exception: if querying fails
+        """
+        #TODO: authorization check
+        supabase_datetime = day.isoformat()
+        try:
+            response = (
+                supabase.table("appointments")
+                .select("appointment_id, client_name, time, status")
+                .eq("shop_id", shopID)
+                .eq("day", supabase_datetime)
+                .execute()
+            )
+
+            return response.data
+
+        except Exception as e:
+
+            print(f"Error retrieving appointment information for shop {shopID}")
 
             raise e
 

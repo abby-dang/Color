@@ -41,7 +41,7 @@ def sign_in(request):
             response = auth.login(email, password)
             return JsonResponse({
                 "id": str(response.user.id),
-                "name": response.user.email,
+                "email": response.user.email,
                 "token": response.session.access_token if response.session else None
             })
         except Exception as e:
