@@ -5,8 +5,8 @@ def hash_pin(pin: int) -> str:
     hashed = bcrypt.hashpw(pin.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     return hashed
 
-def verify_pin(pin: int) -> bool:
-    is_valid = bcrypt.checkpw(pin.encode("utf-8"), hash_pin(pin))
+def verify_pin(pin: str, stored_hash: str) -> bool:
+    is_valid = bcrypt.checkpw(pin.encode("utf-8"), stored_hash.encode("utf-8"))
     return is_valid
 
 def valid_phone(phone: str) -> bool:

@@ -113,3 +113,46 @@ def get_shop_commission_total(request, shop_id):
 
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
+
+@csrf_exempt
+def update_shop_info(request, shop_id):
+
+    if request.method == "PUT":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+        
+        try:
+            body = json.loads(request.body)
+            user_id = (
+                supabase.table("users")
+                .select("user_id")
+                .eq("uuid", uuid)
+                .execute().data[0]["user_id"]
+            )
+            name = body["name"]
+            phone = body["phone"]
+            address = body["address"]
+            email = body["email"]
+            open_t = body["open_t"]
+            close_t = body["close_t"]
+            open_d = body["open_d"]
+            close_d = body["close_d"]
+            pin = body["pin"]
+
+            response = shops.update_shop_info(user_id, shop_id, pin, name, phone, address, email, open_t, close_t, close_d, open_d)
+
+            if response is None:
+                return JsonResponse({"Error":"There was an issue updating the shop information"})
+
+            return JsonResponse({
+                "shop_id": shop_id,
+                "name": name,
+                "phone": phone,
+                "address": address,
+                "email": email,
+                "open_t": open_t,
+                "close_t": close_t,
+                "open_d": open_d,
+                "close_d": close_d
+            })
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)

@@ -17,10 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from nailmanagement.app.api.auth import register as account_register
-from nailmanagement.app.api.auth import sign_in
-from nailmanagement.app.api.auth import sign_out
+from nailmanagement.app.api.auth import sign_in, sign_out
 from nailmanagement.app.api.shops import register as shop_register
-from nailmanagement.app.api.shops import get_shop_info, get_shops,  get_shop_commission_total
+from nailmanagement.app.api.shops import get_shop_info, get_shops, get_shop_commission_total, update_shop_info
 
 BASE_URL = "api/auth"
 
@@ -36,5 +35,6 @@ urlpatterns = [
     #shop information
     path(f"{BASE_URL}/shops/<int:owner_id>/", get_shops),
     path(f"{BASE_URL}/shop_information/<int:shop_id>/", get_shop_info),
+    path(f"{BASE_URL}/update_shop_info/<int:shop_id>/", update_shop_info),
     path(f"{BASE_URL}/shop_commissions/<int:shop_id>/", get_shop_commission_total)
 ]

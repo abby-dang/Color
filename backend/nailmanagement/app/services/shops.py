@@ -328,8 +328,73 @@ class Shops:
 
             raise e
 
-    
-  
+    #OWNER ONLY
+    def update_shop_info(self, user_id: str, shopID: int, pin: str, name: str, phone: str, address: str, email: str, open_t: time, close_t: time, close_d: str, open_d: str):
+        """
+        Updates shop information for a given shop
+
+        Args:
+            user_id (str): user identification
+            shopID (int): shop identification number
+            pin (str): shop PIN for verification
+            name (str): name of the shop
+            phone (str): shop phone number
+            address (str): shop address
+            email (str): shop email
+            open_t (time): opening time of the shop
+            close_t (time): closing time of the shop
+            close_d (str): comma separated days the shop is closed (e.g. 's,sat')
+            open_d (str): comma separated days the shop is open (e.g. 'm,t,w,th,f')
+
+        Returns:
+            dict: updated shop record
+
+        Raises:
+            ValueError: if user is not the shop owner
+            ValueError: if any input validation fails
+            ValueError: if the wrong pin was entered
+            Exception: if update query fails
+        """
+
+        #extract pin and owner_id
+        data = (
+            supabase.table("shops")
+            .select("owner_id, pin")
+            .eq("shop_id", shopID)
+            .execute().data[0]
+        )
+        if not data:
+            raise ValueError("Shop not found")
+        
+        if data["owner_id"] != user_id:
+            raise ValueError("Unauthorized access")
+
+        if not verify_pin(pin, data["pin"]):
+            raise ValueError("Invalid pin")
+
+        try:
+            response = (
+                supabase.table("shops")
+                .update({
+                    "name": name,
+                    "phone": phone,
+                    "address": address,
+                    "email": email,
+                    "open_t": open_t,
+                    "close_t": close_t,
+                    "open_d": open_d,
+                    "close_d": close_d
+                })
+                .eq("shop_id", shopID) #always filter before executing update!!!!
+                .execute()
+            )
+
+            return response
+        except Exception as e:
+            print(f"There was an issue updating shop information for {shopID}")
+            raise e
+
+
 
             
 
