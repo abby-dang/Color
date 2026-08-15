@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from nailmanagement.app.services.shops import Shops
 from nailmanagement.app.db.supabase_client import supabase
+
 shops = Shops()
 
 @csrf_exempt
@@ -156,3 +157,5 @@ def update_shop_info(request, shop_id):
             })
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
+
+    

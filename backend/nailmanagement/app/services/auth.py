@@ -107,7 +107,7 @@ class UserAuthentication:
         )
 
 
-    def update_user(self, new_password: str):
+    def update_user_password(self, new_password: str):
         """
         Updates user's password 
 

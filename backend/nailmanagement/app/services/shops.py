@@ -1,7 +1,7 @@
 from nailmanagement.app.db.supabase_client import supabase
-import re
 import time
 from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays
+from nailmanagement.app.services.techs import Techs
 from datetime import datetime
 class Shops:
 
@@ -329,12 +329,12 @@ class Shops:
             raise e
 
     #OWNER ONLY
-    def update_shop_info(self, user_id: str, shopID: int, pin: str, name: str, phone: str, address: str, email: str, open_t: time, close_t: time, close_d: str, open_d: str):
+    def update_shop_info(self, user_id: int, shopID: int, pin: str, name: str, phone: str, address: str, email: str, open_t: time, close_t: time, close_d: str, open_d: str):
         """
         Updates shop information for a given shop
 
         Args:
-            user_id (str): user identification
+            user_id (int): user identification number
             shopID (int): shop identification number
             pin (str): shop PIN for verification
             name (str): name of the shop
@@ -394,6 +394,39 @@ class Shops:
             print(f"There was an issue updating shop information for {shopID}")
             raise e
 
+    def add_new_tech(self, shop_id: int, email: str, commission_rate: int):
+        try:
+            data = (
+                supabase.table("users")
+                .select("user_id")
+                .eq("email", email)
+                .execute().data
+            ) 
+
+            if data:
+                user_id = data[0]["user_id"]
+                tech = Techs()
+                response = tech.register_tech(shop_id, user_id, commission_rate)
+                return response
+            
+            else:
+                invite = supabase.auth.admin.invite_user_by_email(
+                    email,
+                    options = {
+                        "data": {
+                            "shop_id": shop_id,
+                            "commission_rate": commission_rate,
+                        }
+                    }
+                    )
+
+                return {"Message": "Invitation sent successfully"}
+        
+        except Exception as e:
+            print(f"Error: {e}")
+            raise e
+
+        
 
 
             
