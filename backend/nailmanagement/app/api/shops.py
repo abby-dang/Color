@@ -56,7 +56,7 @@ def get_shops(request, owner_id):
         uuid = request.supabase_user.user.id #gets the user's uuid
 
         try:
-            response = shops.get_shops(uuid, owner_id)
+            response = shops.get_owner_shops(uuid, owner_id)
 
             if response is None:
                 return JsonResponse({"Error": "There was an issue retrieving shops"}, status = 400)
@@ -94,26 +94,6 @@ def get_shop_info(request, shop_id):
         except Exception as e:
             return JsonResponse({"Error" : str(e)}, status = 400)
 
-      
-@csrf_exempt
-def get_shop_commission_total(request, shop_id):
-    
-    if request.method == "GET":
-        uuid = request.supabase_user.user.id #gets the user's uuid
-    
-        try:
-            response = shops.get_shop_commission_total(shop_id, uuid)
-
-            if response is None:
-                return JsonResponse({"Error":"There was an issue retrieving the total commissions"}, status = 400)
-
-            return JsonResponse({
-                "shop_id": shop_id,
-                "totalCommissions": str(response) 
-            })
-
-        except Exception as e:
-            return JsonResponse({"Error": str(e)}, status = 400)
 
 @csrf_exempt
 def update_shop_info(request, shop_id):
@@ -158,4 +138,87 @@ def update_shop_info(request, shop_id):
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
 
+          
+@csrf_exempt
+def get_shop_commission_total(request, shop_id):
     
+    if request.method == "GET":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+    
+        try:
+            response = shops.get_shop_commission_total(shop_id, uuid)
+
+            if response is None:
+                return JsonResponse({"Error":"There was an issue retrieving the total commissions"}, status = 400)
+
+            return JsonResponse({
+                "shop_id": shop_id,
+                "totalCommissions": str(response) 
+            })
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)
+
+def get_shop_techs(request, shop_id):
+
+    if request.method == "GET":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+
+        try:
+            response = shops.get_shop_techs(uuid, shop_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue retrieving the shop technicians"}, status = 400)
+
+            return JsonResponse(response, safe=False)
+
+        except Exception as e:
+            return JsonResponse({"Error" : str(e)}, status = 400)
+
+def get_shop_services(request, shop_id):
+
+    if request.method == "GET":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+
+        try:
+            response = shops.get_shop_services(uuid, shop_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue retrieving the shop services"}, status = 400)
+
+            return JsonResponse(response, safe=False)
+
+        except Exception as e:
+            return JsonResponse({"Error" : str(e)}, status = 400)
+
+def get_shop_skills(request, shop_id):
+
+    if request.method == "GET":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+
+        try:
+            response = shops.get_shop_skills(uuid, shop_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue retrieving the shop skills"}, status = 400)
+
+            return JsonResponse(response, safe=False)
+
+        except Exception as e:
+            return JsonResponse({"Error" : str(e)}, status = 400)
+
+def get_shop_appointments(request, shop_id):
+
+    if request.method == "GET":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+
+        try:
+            response = shops.get_shop_appointments(uuid, shop_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue retrieving the shop appointments"}, status = 400)
+
+            return JsonResponse(response, safe=False)
+
+        except Exception as e:
+            return JsonResponse({"Error" : str(e)}, status = 400)

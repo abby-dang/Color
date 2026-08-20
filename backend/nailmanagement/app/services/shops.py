@@ -1,6 +1,7 @@
 from nailmanagement.app.db.supabase_client import supabase
 import time
 from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays
+from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_tech
 from nailmanagement.app.services.techs import Techs
 from datetime import datetime
 class Shops:
@@ -64,8 +65,8 @@ class Shops:
             print("Error registering shop")
 
             raise e
-
-    def get_shops(self, uuid: str, ownerID: int) -> list:
+    #VIEWABLE TO OWNER
+    def get_owner_shops(self, uuid: str, ownerID: int) -> list:
         """
         Returns a list of shops
 
@@ -80,17 +81,10 @@ class Shops:
             Exception: if invalid access or query fails 
         """
         try:
-            userID = (
-                supabase.table("users")
-                .select("user_id")
-                .eq("uuid", uuid)
-                .execute().data
-            )
+            userID = get_user_id(uuid)
 
-            if not userID:
+            if userID == -1:
                 raise ValueError("User not found")
-
-            userID = userID[0]["user_id"]
 
             if userID != ownerID:
                 raise ValueError("Invalid access")
@@ -108,8 +102,43 @@ class Shops:
         except Exception as e:
             print(f"Error retrieving shop info for owner_id {ownerID}")
             raise e
+            
+    #VIEWABLE TO TECHS
+    def get_tech_shops(self, uuid: str) -> list:
+        """
+        Returns a list of shops for a tech
+
+        Args:
+            uuid (str): user identification
+        Returns:
+            list: of the shop_id and name
+        Raises:
+            Exception: if invalid access or query fails
+        """
+        try:
+            userID = get_user_id(uuid)
+
+            if userID == -1:
+                raise ValueError("User not found")
+
+            response = (
+                supabase.table("techs")
+                .select("shops(shop_id, name)")
+                .eq("user_id", userID)
+                .execute()
+            )
+
+            if not response.data:
+                return []
+            
+            return response.data
+
+        except Exception as e:
+            print(f"Error retrieving shops for tech")
+            raise e  
         
-    def get_shop_info(self, uuid: str, shopID: int) -> dict:
+    #VIEWABLE TO PUBLIC, OWNER, AND TECHS
+    def get_shop_info(self, shopID: int, uuid: str = None) -> dict:
         """
         Retrieves shop information
 
@@ -118,16 +147,36 @@ class Shops:
             shopID (int): shop identification number
 
         Returns:
-            dict: containing the shop_id, owner_id, name, address, email, phone, opne_t, close_t, open_d, close_d
+            dict: containing the shop_id, name, address, email, phone, opne_t, close_t, open_d, close_d
         
         Raises: 
             Exception: if the shopID is invalid or query error
         """
         try:
+            #check if user is owner or tech
+            if uuid is not None:
+                userID = get_user_id(uuid)
 
+                if userID == -1:
+                    raise ValueError("User not found")
+
+                ownerID = get_owner_id(shopID)
+
+                if(ownerID == userID) or (is_tech(userID, shopID)):
+                    response = (
+                        supabase.table("shops")
+                        .select("shop_id, owner_id, name, address, email, phone, open_t, close_t, open_d, close_d")
+                        .eq("shop_id", shopID)
+                        .execute().data
+                    )
+                    if not response: 
+                        raise ValueError("Shop not found")
+                    
+                    return response
+            
             response = (
                 supabase.table("shops")
-                .select("*")
+                .select("name, address, email, phone, open_t, close_t, open_d, close_d")
                 .eq("shop_id", shopID)
                 .execute().data[0]
             )
@@ -160,19 +209,12 @@ class Shops:
             Exception: if invalid access or query error
         """
         try:
-            userID = (
-                supabase.table("users")
-                .select("user_id")
-                .eq("uuid", uuid)
-                .execute().data[0]["user_id"]
-            )
+            userID = get_user_id(uuid)
 
-            ownerID = (
-                supabase.table("shops")
-                .select("owner_id")
-                .eq("shop_id", shopID)
-                .execute().data[0]["owner_id"]
-            )
+            if userID == -1:
+                raise ValueError("User not found")
+            
+            ownerID = get_owner_id(shopID)
 
             if(ownerID != userID):
                 raise ValueError("Invalid Access")
@@ -200,8 +242,8 @@ class Shops:
 
             raise e
 
-    #TODO: NEEDS TO BE TESTED
-    def get_shop_techs(self, uuid: str, shopID: int) -> list:
+    #VIEWABLE TO PUBLIC,OWNER, AND TECHS
+    def get_shop_techs(self, shopID: int, uuid: str = None) -> list:
         """
         Retrieves a list of all techs associated with a shop
 
@@ -215,24 +257,32 @@ class Shops:
         Raises:
             Exception: if query issues
         """
-        #TODO: authorization check
+
         try:
             response = (
                 supabase.table("techs")
-                .select("user_id")
+                .select("tech_id, users(first_name)")
                 .eq("shop_id", shopID)
                 .execute()
             )
 
-            return response.data
+
+            return [
+                {
+                    "tech_id": tech["tech_id"],
+                    "name": tech["users"]["first_name"]  
+                }
+                for tech in response.data
+            ]
 
         except Exception as e:
 
             print(f"Error retrieving nail techs for shop {shopID}")
 
             raise e
-    #TODO: NEEDS TO BE TESTED
-    def get_shop_services(self, uuid: str, shopID: int) -> list:
+        
+    #VIEWABLE TO PUBLIC
+    def get_shop_services(self, shopID: int) -> list:
         """
         Retrieves a list of all shop services
 
@@ -246,8 +296,8 @@ class Shops:
         Raises:
             Exception: if issue querying
         """
-        #TODO: authorization check
         try:
+            
             response = (
                 supabase.table("shop_services")
                 .select("name, description, price, duration")
@@ -262,8 +312,9 @@ class Shops:
             print(f"Error retrieving shop services for shop {shopID}")
 
             raise e
-    #TODO: NEEDS TO BE TESTED
-    def get_shop_skills(self, uuid: str, shopID: int) -> list:
+        
+    #VIEWABLE TO PUBLIC
+    def get_shop_skills(self, shopID: int) -> list:
         """
         Retrieves a list of all shop skills
         
@@ -277,8 +328,8 @@ class Shops:
         Raises:
             Exception: If querying fails
         """
-        #TODO: authorization check
         try:
+            
             response = (
                 supabase.table("shop_skills")
                 .select("skills(name)")
@@ -294,6 +345,7 @@ class Shops:
 
             raise e
 
+    #ONLY VIEWABLE TO OWNER AND TECHS
     def get_shop_appointments(self, uuid: str, day: datetime, shopID: int) -> list:
         """
         Retrieves all appointments associated with a shop on a given day
@@ -309,9 +361,17 @@ class Shops:
         Raises:
             Exception: if querying fails
         """
-        #TODO: authorization check
         supabase_datetime = day.isoformat()
         try:
+            userID = get_user_id(uuid)
+            if userID == -1:
+                raise ValueError("User not found")
+            
+            ownerID = get_owner_id(shopID)
+
+            if(is_tech(userID, shopID) == False) and (ownerID != userID):
+                raise ValueError("Invalid access")
+            
             response = (
                 supabase.table("appointments")
                 .select("appointment_id, client_name, time, status")
@@ -356,23 +416,23 @@ class Shops:
             Exception: if update query fails
         """
 
-        #extract pin and owner_id
-        data = (
-            supabase.table("shops")
-            .select("owner_id, pin")
-            .eq("shop_id", shopID)
-            .execute().data[0]
-        )
-        if not data:
-            raise ValueError("Shop not found")
-        
-        if data["owner_id"] != user_id:
-            raise ValueError("Unauthorized access")
-
-        if not verify_pin(pin, data["pin"]):
-            raise ValueError("Invalid pin")
-
         try:
+            #extract pin and owner_id
+            data = (
+                supabase.table("shops")
+                .select("owner_id, pin")
+                .eq("shop_id", shopID)
+                .execute().data[0]
+            )
+            if not data:
+                raise ValueError("Shop not found")
+            
+            if data["owner_id"] != user_id:
+                raise ValueError("Unauthorized access")
+    
+            if not verify_pin(pin, data["pin"]):
+                raise ValueError("Invalid pin")
+            
             response = (
                 supabase.table("shops")
                 .update({
@@ -427,7 +487,7 @@ class Shops:
             raise e
 
         
-
+    
 
             
 
