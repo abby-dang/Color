@@ -47,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'nailmanagement.app.middleware.auth.AuthMiddleware'
 ]
 
 ROOT_URLCONF = 'nailmanagement.urls'
