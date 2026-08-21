@@ -30,7 +30,7 @@ urlpatterns = [
     path(f"{BASE_URL}/auth/logout/", sign_out),
 
     #shop registration
-    path(f"{BASE_URL}/shops/register/", shop_register),
+    path(f"{SHOP_BASE_URL}/register/", shop_register),
 
     #shop information
     path(f"{SHOP_BASE_URL}/owner/<int:owner_id>/", get_owner_shops),
