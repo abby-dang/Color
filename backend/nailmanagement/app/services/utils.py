@@ -47,3 +47,15 @@ def valid_password(password: str) -> bool:
     
     return True
 
+def verify_date_format(date_str: str) -> bool:
+    """
+    Verifies that the date string is in the format YYYY-MM-DD
+
+    Args:
+        date_str (str): The date string to verify
+
+    Returns:
+        bool: True if the date string is in the correct format, False otherwise
+    """
+    pattern = r"^\d{4}-\d{2}-\d{2}$"
+    return re.match(pattern, date_str) is not None

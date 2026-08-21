@@ -1,6 +1,6 @@
 from nailmanagement.app.db.supabase_client import supabase
 import time
-from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays
+from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays, verify_date_format
 from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_tech
 from nailmanagement.app.services.techs import Techs
 from datetime import datetime
@@ -82,7 +82,7 @@ class Shops:
         """
         try:
             userID = get_user_id(uuid)
-
+            print(f"User ID: {userID}")
             if userID == -1:
                 raise ValueError("User not found")
 
@@ -102,7 +102,7 @@ class Shops:
         except Exception as e:
             print(f"Error retrieving shop info for owner_id {ownerID}")
             raise e
-            
+
     #VIEWABLE TO TECHS
     def get_tech_shops(self, uuid: str) -> list:
         """
@@ -192,6 +192,7 @@ class Shops:
 
             raise e
 
+    #TODO: MOVE TO COMMISSIONS FILE
     #FETCHING SHOP INFO 
     #ONLY OWNER CAN VIEW
     def get_shop_commission_total(self, shopID: int, uuid: str) -> float:
@@ -243,7 +244,7 @@ class Shops:
             raise e
 
     #VIEWABLE TO PUBLIC,OWNER, AND TECHS
-    def get_shop_techs(self, shopID: int, uuid: str = None) -> list:
+    def get_shop_techs(self, shopID: int) -> list:
         """
         Retrieves a list of all techs associated with a shop
 
@@ -281,38 +282,8 @@ class Shops:
 
             raise e
         
-    #VIEWABLE TO PUBLIC
-    def get_shop_services(self, shopID: int) -> list:
-        """
-        Retrieves a list of all shop services
 
-        Args:
-            uuid(str): user identification
-            shopID(int): shop identification number
-
-        Returns:
-            list: of shop service name, description, price, and duration
-        
-        Raises:
-            Exception: if issue querying
-        """
-        try:
-            
-            response = (
-                supabase.table("shop_services")
-                .select("name, description, price, duration")
-                .eq("shop_id", shopID)
-                .execute()
-            )
-
-            return response.data
-
-        except Exception as e:
-
-            print(f"Error retrieving shop services for shop {shopID}")
-
-            raise e
-        
+    #TODO: MOVE TO SKILLS FILE   
     #VIEWABLE TO PUBLIC
     def get_shop_skills(self, shopID: int) -> list:
         """
@@ -345,8 +316,9 @@ class Shops:
 
             raise e
 
+    #TODO: MOVE TO APPOINTMENT FILE
     #ONLY VIEWABLE TO OWNER AND TECHS
-    def get_shop_appointments(self, uuid: str, day: datetime, shopID: int) -> list:
+    def get_shop_appointments(self, uuid: str, day: str, shopID: int) -> list:
         """
         Retrieves all appointments associated with a shop on a given day
 
@@ -361,7 +333,11 @@ class Shops:
         Raises:
             Exception: if querying fails
         """
-        supabase_datetime = day.isoformat()
+        if not verify_date_format(day):
+            raise ValueError("Invalid date format. Please use YYYY-MM-DD.")
+
+        date_object = datetime.strptime(day, "%Y-%m-%d").date()
+
         try:
             userID = get_user_id(uuid)
             if userID == -1:
@@ -376,7 +352,7 @@ class Shops:
                 supabase.table("appointments")
                 .select("appointment_id, client_name, time, status")
                 .eq("shop_id", shopID)
-                .eq("day", supabase_datetime)
+                .eq("day", date_object)
                 .execute()
             )
 
@@ -454,6 +430,7 @@ class Shops:
             print(f"There was an issue updating shop information for {shopID}")
             raise e
 
+    #TODO MOVE TO TECHS FILE
     def add_new_tech(self, shop_id: int, email: str, commission_rate: int):
         try:
             data = (
@@ -486,8 +463,7 @@ class Shops:
             print(f"Error: {e}")
             raise e
 
-        
     
 
-            
+    
 

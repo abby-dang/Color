@@ -16,27 +16,32 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from nailmanagement.app.api.shop_services import add_service, get_shop_services, remove_shop_service, update_shop_service
 from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out
-from nailmanagement.app.api.shops import get_shop_info, get_shops, get_shop_commission_total, update_shop_info, get_shop_services, get_shop_skills, get_shop_appointments, register as shop_register
-
-BASE_URL = "api/auth"
-
+from nailmanagement.app.api.shops import get_shop_info, get_owner_shops, get_shop_commission_total, update_shop_info, get_shop_appointments, register as shop_register
+  
+BASE_URL = "api"
+SHOP_BASE_URL = f"{BASE_URL}/shops"
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(f"{BASE_URL}/register/", account_register),
-    path(f"{BASE_URL}/login/", sign_in),
-    path(f"{BASE_URL}/logout/", sign_out),
+    path(f"{BASE_URL}/auth/register/", account_register),
+    path(f"{BASE_URL}/auth/login/", sign_in),
+    path(f"{BASE_URL}/auth/logout/", sign_out),
 
     #shop registration
-    path(f"{BASE_URL}/shop_registration/", shop_register),
+    path(f"{BASE_URL}/shops/register/", shop_register),
 
     #shop information
-    path(f"{BASE_URL}/shops/<int:owner_id>/", get_shops),
-    path(f"{BASE_URL}/shop_information/<int:shop_id>/", get_shop_info),
-    path(f"{BASE_URL}/update_shop_info/<int:shop_id>/", update_shop_info),
-    path(f"{BASE_URL}/shop_commissions/<int:shop_id>/", get_shop_commission_total),
-    path(f"{BASE_URL}/shop_services/<int:shop_id>/", get_shop_services),
-    path(f"{BASE_URL}/shop_skills/<int:shop_id>/", get_shop_skills),
-    path(f"{BASE_URL}/shop_appointments/<int:shop_id>/", get_shop_appointments),
+    path(f"{SHOP_BASE_URL}/owner/<int:owner_id>/", get_owner_shops),
+    path(f"{SHOP_BASE_URL}/information/<int:shop_id>/", get_shop_info),
+    path(f"{SHOP_BASE_URL}/update/<int:shop_id>/", update_shop_info),
+    path(f"{SHOP_BASE_URL}/commissions/<int:shop_id>/", get_shop_commission_total),
+    path(f"{SHOP_BASE_URL}/appointments/<int:shop_id>/date/<str:day>/", get_shop_appointments),
+
+    #services
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/services/add/", add_service),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/services/", get_shop_services),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/services/remove/<int:service_id>/", remove_shop_service),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/services/update/<int:service_id>/", update_shop_service),
 ]

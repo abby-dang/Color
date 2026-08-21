@@ -16,7 +16,7 @@ def register(request):
             firstName = body["firstName"]
             lastName = body["lastName"]
             phone = body["phone"]
-            pin = body.get("pin") #if registering as nail tech
+            #pin = body.get("pin") #if registering as nail tech
 
             response = auth.sign_up(email, password, firstName, lastName, phone)
 
@@ -24,13 +24,13 @@ def register(request):
                 return JsonResponse({"Error": "Registration failed"}, status=400)
 
             #check if registering through invitation
-            metadata = response
-            shop_id = metadata.get("shop_id")
-            commission_rate = metadata.get("commission_rate")
+            #metadata = response
+            #shop_id = metadata.get("shop_id")
+            #commission_rate = metadata.get("commission_rate")
 
-            if shop_id and commission_rate:
-                tech = Techs()
-                tech.register_tech(shop_id, response.data[0]["user_id"], commission_rate, pin)
+            #if shop_id and commission_rate:
+            #    tech = Techs()
+            #    tech.register_tech(shop_id, response.data[0]["user_id"], commission_rate, pin)
 
             return JsonResponse({
                 "userID": str(response.data[0]["user_id"]),

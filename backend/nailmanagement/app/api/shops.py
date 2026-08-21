@@ -50,7 +50,7 @@ def register(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status = 400)
         
-def get_shops(request, owner_id):
+def get_owner_shops(request, owner_id):
 
     if request.method == "GET":
         uuid = request.supabase_user.user.id #gets the user's uuid
@@ -71,25 +71,17 @@ def get_shop_info(request, shop_id):
     if request.method == "GET":
 
         uuid = request.supabase_user.user.id #gets the user's uuid 
-
+        
         try:
-            response = shops.get_shop_info(uuid, shop_id)
+            if uuid is None:
+                response = shops.get_shop_info(shop_id,None)
+            else:
+                response = shops.get_shop_info(shop_id,uuid)
 
             if response is None:
                 return JsonResponse({"Error": "There was an issue retrieving shop information"}, status = 400)
 
-            return JsonResponse({
-                "shop_id": str(response["shop_id"]),
-                "owner_id": str(response["owner_id"]),
-                "name": str(response["name"]),
-                "address": str(response["address"]),
-                "email": str(response["email"]),
-                "phone": str(response["phone"]),
-                "open_t": str(response["open_t"]),
-                "close_t": str(response["close_t"]),
-                "open_d": str(response["open_d"]),
-                "close_d": str(response["close_d"])
-            })
+            return JsonResponse(response, safe=False)
 
         except Exception as e:
             return JsonResponse({"Error" : str(e)}, status = 400)
@@ -175,45 +167,13 @@ def get_shop_techs(request, shop_id):
         except Exception as e:
             return JsonResponse({"Error" : str(e)}, status = 400)
 
-def get_shop_services(request, shop_id):
+def get_shop_appointments(request, shop_id, day):
 
     if request.method == "GET":
         uuid = request.supabase_user.user.id #gets the user's uuid
-
         try:
-            response = shops.get_shop_services(uuid, shop_id)
 
-            if response is None:
-                return JsonResponse({"Error": "There was an issue retrieving the shop services"}, status = 400)
-
-            return JsonResponse(response, safe=False)
-
-        except Exception as e:
-            return JsonResponse({"Error" : str(e)}, status = 400)
-
-def get_shop_skills(request, shop_id):
-
-    if request.method == "GET":
-        uuid = request.supabase_user.user.id #gets the user's uuid
-
-        try:
-            response = shops.get_shop_skills(uuid, shop_id)
-
-            if response is None:
-                return JsonResponse({"Error": "There was an issue retrieving the shop skills"}, status = 400)
-
-            return JsonResponse(response, safe=False)
-
-        except Exception as e:
-            return JsonResponse({"Error" : str(e)}, status = 400)
-
-def get_shop_appointments(request, shop_id):
-
-    if request.method == "GET":
-        uuid = request.supabase_user.user.id #gets the user's uuid
-
-        try:
-            response = shops.get_shop_appointments(uuid, shop_id)
+            response = shops.get_shop_appointments(uuid, day,shop_id)
 
             if response is None:
                 return JsonResponse({"Error": "There was an issue retrieving the shop appointments"}, status = 400)
