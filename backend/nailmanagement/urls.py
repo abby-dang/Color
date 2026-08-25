@@ -19,7 +19,7 @@ from django.urls import path
 from nailmanagement.app.api.shop_services import add_service, get_shop_services, remove_shop_service, update_shop_service
 from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out
-from nailmanagement.app.api.shops import get_shop_info, get_owner_shops, get_shop_commission_total, update_shop_info, get_shop_appointments, register as shop_register
+from nailmanagement.app.api.shops import add_shop_skill, get_shop_info, get_owner_shops, get_shop_commission_total, get_shop_skills, remove_shop_skill, update_shop_info, get_shop_appointments, register as shop_register
 from nailmanagement.app.api.skills import add_skill, get_skills, get_skills_by_name
 
 BASE_URL = "api"
@@ -42,6 +42,9 @@ urlpatterns = [
     path(f"{SHOP_BASE_URL}/commissions/<int:shop_id>/", get_shop_commission_total),
     path(f"{SHOP_BASE_URL}/appointments/<int:shop_id>/date/<str:day>/", get_shop_appointments),
 
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/skills/", get_shop_skills),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/skills/add/<int:skill_id>/", add_shop_skill),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/skills/remove/<int:shop_skill_id>/", remove_shop_skill),
     #services
     path(f"{SHOP_BASE_URL}/<int:shop_id>/services/add/", add_service),
     path(f"{SHOP_BASE_URL}/<int:shop_id>/services/", get_shop_services),

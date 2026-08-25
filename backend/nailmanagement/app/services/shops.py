@@ -281,9 +281,7 @@ class Shops:
             print(f"Error retrieving nail techs for shop {shopID}")
 
             raise e
-        
-
-    #TODO: MOVE TO SKILLS FILE   
+          
     #VIEWABLE TO PUBLIC
     def get_shop_skills(self, shopID: int) -> list:
         """
@@ -303,7 +301,7 @@ class Shops:
             
             response = (
                 supabase.table("shop_skills")
-                .select("skills(name)")
+                .select("skills(name), shop_skill_id")
                 .eq("shop_id", shopID)
                 .execute()
             )
@@ -313,6 +311,84 @@ class Shops:
         except Exception as e:
 
             print(f"Error retrieving shop skills for shop {shopID}")
+
+            raise e
+
+    #OWNER ONLY
+    def add_shop_skill(self, uuid: str,shopID: int, skillID: int) -> dict:
+        """
+        Adds a skill to a shop
+
+        Args:
+            uuid (str): user identification
+            shopID (int): shop identification number
+            skillID (int): skill identification number
+        
+        Returns:
+            dict: the newly added shop skill record
+        
+        Raises:
+            Exception: if querying fails
+        """
+        try:
+            userID = get_user_id(uuid)
+            if userID == -1:
+                raise ValueError("User not found")
+            
+            ownerID = get_owner_id(shopID)
+
+            if(ownerID != userID):
+                raise ValueError("Invalid access")
+
+            response = (
+                supabase.table("shop_skills")
+                .insert({"shop_id": shopID, "skill_id": skillID})
+                .execute()
+            )
+
+            return response.data[0]
+
+        except Exception as e:
+
+            print(f"Error adding skill {skillID} to shop {shopID}")
+
+            raise e
+
+    #OWNER ONLY
+    def remove_shop_skill(self, uuid: str, shopID: int, shop_skill_id: int) -> dict:
+        """
+        Removes a skill from a shop
+
+        Args:
+            uuid (str): user identification
+            shopID (int): shop identification number
+            skillID (int): skill identification number
+        Returns:
+            dict: the removed shop skill record 
+        """
+        try:
+            userID = get_user_id(uuid)
+            if userID == -1:
+                raise ValueError("User not found")
+            
+            ownerID = get_owner_id(shopID)
+
+            if(ownerID != userID):
+                raise ValueError("Invalid access")
+            
+            response = (
+                supabase.table("shop_skills")
+                .delete()
+                .eq("shop_id", shopID)
+                .eq("shop_skill_id", shop_skill_id)
+                .execute()
+            )
+
+            return response.data[0]
+
+        except Exception as e:
+
+            print(f"Error removing skill {skillID} from shop {shopID}")
 
             raise e
 
