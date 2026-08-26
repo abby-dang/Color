@@ -4,9 +4,12 @@
 
 A salon management platform in development, aiming to let shop owners manage staff, services, and pricing while giving users a streamlined way to register and interact with a shop. Backend built first; frontend (React) planned next. Built in collaboration with a UX designer.
 
+## Inspiration
+I used to work as a nail technician and as a receptionist at a couple of shops. Through that experience, I noticed that nail salons are often managed manually, with pen and paper. Nail techs are assigned through a first-come-first-served queue, and managers, owners, and receptionists are expected to know each technician's skills in order to assign clients based on both their position in the queue and what they're qualified to do. This can be a nightmare for a receptionist with no nail tech experience and no existing relationship with the techs. On top of that, nail techs are often paid through commission, which creates real problems when a client gets assigned to the wrong tech. My project aims to streamline this process while still preserving the management style nail salons actually rely on.
+
 ## Overview
 
-NTMS is designed to solve the operational overhead of running a nail salon — owners need an easy way to manage staff, service offerings, and pricing, while techs need a simple way to register and interact with a shop. The platform is being built around role-based access, so owners, techs, and other users will eventually see different functionality tailored to their needs. A planned core feature is a shared, PIN-accessible queue dashboard for nail techs, receptionists, and owners to view technician priority and skill-based service assignment in real time.
+This NTMS is designed to solve the operational overhead of running a nail salon. Owners need an easy way to manage staff, shop queues, service offerings, and pricing, while techs need a simple way to register and interact with the shop queue. The platform is being built around role-based access, so owners, techs, and other users will eventually see different functionality tailored to their needs. A planned core feature is a shared, PIN-accessible queue dashboard for nail techs, receptionists, and owners to view technician priority and skill-based service assignment in real time.
 
 ## Tech Stack
 
@@ -17,7 +20,7 @@ NTMS is designed to solve the operational overhead of running a nail salon — o
 
 ## Key Features
 
-> **Note:** development so far has been entirely backend-focused. Everything below is implemented and tested via Postman — there is no frontend UI yet.
+> **Note:** development so far has been entirely backend-focused. Everything below is implemented and tested via Postman. There is no frontend UI yet.
 
 - **User & shop registration** — end-to-end account creation logic linking authenticated users to shop records
 - **Relational database** — 11-table schema supporting secure, role-based data access
