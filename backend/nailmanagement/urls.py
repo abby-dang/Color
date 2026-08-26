@@ -19,18 +19,21 @@ from django.urls import path
 from nailmanagement.app.api.shop_services import add_service, get_shop_services, remove_shop_service, update_shop_service
 from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out
-from nailmanagement.app.api.shops import get_shop_info, get_owner_shops, get_shop_commission_total, update_shop_info, get_shop_appointments, register as shop_register
-  
+from nailmanagement.app.api.shops import add_shop_skill, get_shop_info, get_owner_shops, get_shop_commission_total, get_shop_skills, remove_shop_skill, update_shop_info, get_shop_appointments, register as shop_register
+from nailmanagement.app.api.skills import add_skill, get_skills, get_skills_by_name
+
 BASE_URL = "api"
+AUTH_BASE_URL = f"{BASE_URL}/auth"
 SHOP_BASE_URL = f"{BASE_URL}/shops"
+SKILL_BASE_URL = f"{BASE_URL}/skills"
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(f"{BASE_URL}/auth/register/", account_register),
-    path(f"{BASE_URL}/auth/login/", sign_in),
-    path(f"{BASE_URL}/auth/logout/", sign_out),
+    path(f"{AUTH_BASE_URL}/register/", account_register),
+    path(f"{AUTH_BASE_URL}/login/", sign_in),
+    path(f"{AUTH_BASE_URL}/logout/", sign_out),
 
     #shop registration
-    path(f"{BASE_URL}/shops/register/", shop_register),
+    path(f"{SHOP_BASE_URL}/register/", shop_register),
 
     #shop information
     path(f"{SHOP_BASE_URL}/owner/<int:owner_id>/", get_owner_shops),
@@ -39,9 +42,17 @@ urlpatterns = [
     path(f"{SHOP_BASE_URL}/commissions/<int:shop_id>/", get_shop_commission_total),
     path(f"{SHOP_BASE_URL}/appointments/<int:shop_id>/date/<str:day>/", get_shop_appointments),
 
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/skills/", get_shop_skills),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/skills/add/<int:skill_id>/", add_shop_skill),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/skills/remove/<int:shop_skill_id>/", remove_shop_skill),
     #services
     path(f"{SHOP_BASE_URL}/<int:shop_id>/services/add/", add_service),
     path(f"{SHOP_BASE_URL}/<int:shop_id>/services/", get_shop_services),
     path(f"{SHOP_BASE_URL}/<int:shop_id>/services/remove/<int:service_id>/", remove_shop_service),
     path(f"{SHOP_BASE_URL}/<int:shop_id>/services/update/<int:service_id>/", update_shop_service),
-]
+
+    #skills
+    path(f"{SKILL_BASE_URL}/add/", add_skill),
+    path(f"{SKILL_BASE_URL}/", get_skills),
+    path(f"{SKILL_BASE_URL}/name/<str:name>/", get_skills_by_name)
+    ]

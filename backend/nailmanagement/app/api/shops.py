@@ -130,7 +130,60 @@ def update_shop_info(request, shop_id):
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
 
-          
+def get_shop_skills(request, shop_id):
+
+    if request.method == "GET":
+        try:
+            response = shops.get_shop_skills(shop_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue retrieving the shop skills"}, status = 400)
+
+            return JsonResponse(response, safe=False)
+
+        except Exception as e:
+            return JsonResponse({"Error" : str(e)}, status = 400)
+        
+@csrf_exempt
+def add_shop_skill(request, shop_id, skill_id):
+
+    if request.method == "POST":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+
+        try:
+            response = shops.add_shop_skill(uuid, shop_id, skill_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue adding the skill to the shop"}, status = 400)
+
+            return JsonResponse({
+                "shop_id": shop_id,
+                "skill_id": skill_id
+            })
+
+        except Exception as e:
+            return JsonResponse({"Error" : str(e)}, status = 400)
+
+@csrf_exempt
+def remove_shop_skill(request, shop_id, shop_skill_id):
+
+    if request.method == "DELETE":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+
+        try:
+            response = shops.remove_shop_skill(uuid, shop_id, shop_skill_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue removing the skill from the shop"}, status = 400)
+
+            return JsonResponse({
+                "shop_id": shop_id,
+                "skill_id": shop_skill_id
+            })
+
+        except Exception as e:
+            return JsonResponse({"Error" : str(e)}, status = 400)
+        
 @csrf_exempt
 def get_shop_commission_total(request, shop_id):
     
