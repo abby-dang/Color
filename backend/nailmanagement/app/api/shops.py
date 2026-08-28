@@ -235,3 +235,24 @@ def get_shop_appointments(request, shop_id, day):
 
         except Exception as e:
             return JsonResponse({"Error" : str(e)}, status = 400)
+
+@csrf_exempt
+def add_new_tech(request, shop_id):
+
+    if request.method == "POST":
+        uuid = request.supabase_user.user.id #gets the user's id
+
+        body = json.loads(request.body)
+        email = body["email"]
+        commission_rate = body["commission_rate"]
+
+        try:
+            response = shops.add_new_tech(uuid, shop_id, email, commission_rate)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue adding new technician to the shop"}, status = 400)
+
+            return JsonResponse(response, safe = False)
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)

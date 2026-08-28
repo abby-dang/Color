@@ -16,31 +16,56 @@ def register(request):
             firstName = body["firstName"]
             lastName = body["lastName"]
             phone = body["phone"]
-            #pin = body.get("pin") #if registering as nail tech
+            
+            response = auth.sign_up(email, firstName, lastName, phone, password = password)
 
-            response = auth.sign_up(email, password, firstName, lastName, phone)
-
-            if response is None or isinstance(response, dict):
+            if response is None:
                 return JsonResponse({"Error": "Registration failed"}, status=400)
 
-            #check if registering through invitation
-            #metadata = response
-            #shop_id = metadata.get("shop_id")
-            #commission_rate = metadata.get("commission_rate")
-
-            #if shop_id and commission_rate:
-            #    tech = Techs()
-            #    tech.register_tech(shop_id, response.data[0]["user_id"], commission_rate, pin)
-
             return JsonResponse({
-                "userID": str(response.data[0]["user_id"]),
-                "firstName": response.data[0]["first_name"],
-                "lastName": response.data[0]["last_name"]
+                "userID": str(response["user_id"]),
+                "firstName": response["first_name"],
+                "lastName": response["last_name"]
             })
         
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status = 400)
+            return JsonResponse({"Error": str(e)}, status = 400)
+        
+@csrf_exempt
+def complete_invite(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
 
+        email = body["email"]
+        firstName = body["firstName"]
+        lastName = body["lastName"]
+        phone = body["phone"]
+        uuid = request.supabase_user.user.id
+        try:
+
+            response = auth.sign_up(email, firstName, lastName, phone, uuid=uuid)
+
+            if response is None:
+                return JsonResponse({"Error": "Registration failed"}, status=400)
+            
+            pin = body["pin"]
+            metadata = request.supabase_user.user.user_metadata
+            
+            shop_id = metadata.get("shop_id")
+            commission_rate = metadata.get("commission_rate")
+
+            tech = Techs()
+
+            tech_response = tech.register_tech(shop_id, response["user_id"], commission_rate, pin)
+
+            if tech_response is None:
+                return JsonResponse({"Error": "Tech registration failed"}, status=400)
+
+            return JsonResponse(response, safe = False)
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)
+
+        
 @csrf_exempt #remove after testing from Postman
 def sign_in(request):
     if request.method == "POST":

@@ -10,8 +10,8 @@ def verify_pin(pin: str, stored_hash: str) -> bool:
     return is_valid
 
 def valid_phone(phone: str) -> bool:
-    validPhoneNum = re.match(r"^\d{10}$", phone)
-    return validPhoneNum
+    cleaned = re.sub(r"\D", "", phone)  # remove non-digits
+    return bool(re.match(r"^\d{10}$", cleaned))
 
 def valid_email(email: str) -> bool:
     validEmail = re.match("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email)

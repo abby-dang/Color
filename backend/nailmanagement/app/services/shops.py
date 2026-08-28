@@ -392,7 +392,7 @@ class Shops:
 
             raise e
 
-    #TODO: MOVE TO APPOINTMENT FILE
+
     #ONLY VIEWABLE TO OWNER AND TECHS
     def get_shop_appointments(self, uuid: str, day: str, shopID: int) -> list:
         """
@@ -507,7 +507,7 @@ class Shops:
             raise e
 
     #TODO MOVE TO TECHS FILE
-    def add_new_tech(self, shop_id: int, email: str, commission_rate: int):
+    def add_new_tech(self, uuid: str, shop_id: int, email: str, commission_rate: int):
         try:
             data = (
                 supabase.table("users")
@@ -523,6 +523,7 @@ class Shops:
                 return response
             
             else:
+                print(f"Tech does not exist")
                 invite = supabase.auth.admin.invite_user_by_email(
                     email,
                     options = {
@@ -532,7 +533,7 @@ class Shops:
                         }
                     }
                     )
-
+                print(f"The invite {invite}")
                 return {"Message": "Invitation sent successfully"}
         
         except Exception as e:

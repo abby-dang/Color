@@ -15,13 +15,18 @@ class Techs:
 
             if tech:
                 return 
-    
+            
+            pin_hash = None
+            if pin:
+                pin_hash = hash_pin(pin)
             response = (
                 supabase.table("techs")
                 .insert({
                     "shop_id": shop_id,
                     "user_id": user_id,
                     "commission_rate": commission_rate,
+                    "pin_hash": pin_hash
+                    
                 })
                 .execute()
             )
