@@ -17,7 +17,7 @@ def valid_email(email: str) -> bool:
     validEmail = re.match("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email)
     return validEmail
 def valid_weekdays(days: str) -> bool:
-    validSet = {"s","m","t","w","th","f","sat"}
+    validSet = {"s","m","t","w","th","f","sat", ""}
     cleaned = days.replace(" ", "")
     splitDays = cleaned.split(",")
 

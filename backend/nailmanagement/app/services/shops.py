@@ -7,7 +7,7 @@ from datetime import datetime
 class Shops:
 
     #EDITING SHOP INFO
-    def register_shop(self, name: str, phone: str, pin: str, address: str, open_t: time, close_t: time, email: str, close_d: str, open_d: str, ownerID: int):
+    def register_shop(self, name: str, phone: str, pin: str, address: str, open_t: time, close_t: time, email: str, close_d: str, open_d: str, uuid: str):
         """
         Registers shop by inserting shop information into the database table
 
@@ -21,7 +21,7 @@ class Shops:
             email (str): Shop contact email
             close_d (str): a string of abbreviated days separated by commas when the shop is closed
             open_d (str): a string of abbreviated days separated by commas when the shop is open
-            owner_id (int): the owner's identification number
+            uuid (str): the owner's UUID
         
         Returns:
             dict: Newly registered shop record 
@@ -51,11 +51,13 @@ class Shops:
             raise ValueError("Invalid days for closing or opening days")
         
         hashed_pin = hash_pin(pin)
-        print(f"Hashed pin: {hashed_pin}")
+
+
         try:
+            user_id = get_user_id(uuid)
             response = (
                 supabase.table("shops")
-                .insert({"name": name, "phone": phone, "pin": hashed_pin, "address": address, "open_t": open_t, "close_t": close_t, "email": email, "close_d": close_d, "open_d": open_d, "owner_id": ownerID})
+                .insert({"name": name, "phone": phone, "pin": hashed_pin, "address": address, "open_t": open_t, "close_t": close_t, "email": email, "close_d": close_d, "open_d": open_d, "owner_id": user_id})
                 .execute()
                 )
             
@@ -441,12 +443,12 @@ class Shops:
             raise e
 
     #OWNER ONLY
-    def update_shop_info(self, user_id: int, shopID: int, pin: str, name: str, phone: str, address: str, email: str, open_t: time, close_t: time, close_d: str, open_d: str):
+    def update_shop_info(self, uuid: str, shopID: int, pin: str, name: str, phone: str, address: str, email: str, open_t: time, close_t: time, close_d: str, open_d: str):
         """
         Updates shop information for a given shop
 
         Args:
-            user_id (int): user identification number
+            uuid (str): user identification
             shopID (int): shop identification number
             pin (str): shop PIN for verification
             name (str): name of the shop
@@ -479,6 +481,10 @@ class Shops:
             if not data:
                 raise ValueError("Shop not found")
             
+            user_id = get_user_id(uuid)
+            if user_id == -1:
+                raise ValueError("User not found")
+
             if data["owner_id"] != user_id:
                 raise ValueError("Unauthorized access")
     
@@ -509,6 +515,14 @@ class Shops:
     #TODO MOVE TO TECHS FILE
     def add_new_tech(self, uuid: str, shop_id: int, email: str, commission_rate: int):
         try:
+            user_id = get_user_id(uuid)
+            if user_id == -1:
+                raise ValueError("User not found")
+
+            owner_id = get_owner_id(shop_id)
+            if owner_id != user_id:
+                raise ValueError("Invalid access")
+            
             data = (
                 supabase.table("users")
                 .select("user_id")
