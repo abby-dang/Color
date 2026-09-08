@@ -21,11 +21,12 @@ from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out, complete_invite
 from nailmanagement.app.api.shops import add_shop_skill, get_shop_info, get_owner_shops, get_shop_commission_total, get_shop_skills, remove_shop_skill, update_shop_info, get_shop_appointments, add_new_tech, register as shop_register
 from nailmanagement.app.api.skills import add_skill, get_skills, get_skills_by_name
-
+from nailmanagement.app.api.techs import get_tech_shops
 BASE_URL = "api"
 AUTH_BASE_URL = f"{BASE_URL}/auth"
 SHOP_BASE_URL = f"{BASE_URL}/shops"
 SKILL_BASE_URL = f"{BASE_URL}/skills"
+TECH_BASE_URL = f"{BASE_URL}/techs"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(f"{AUTH_BASE_URL}/register/", account_register),
@@ -55,8 +56,12 @@ urlpatterns = [
 
     #tech
     path(f"{SHOP_BASE_URL}/<int:shop_id>/addtech/", add_new_tech),
+
     #skills
     path(f"{SKILL_BASE_URL}/add/", add_skill),
     path(f"{SKILL_BASE_URL}/", get_skills),
-    path(f"{SKILL_BASE_URL}/name/<str:name>/", get_skills_by_name)
+    path(f"{SKILL_BASE_URL}/name/<str:name>/", get_skills_by_name),
+
+    #techs
+    path(f"{TECH_BASE_URL}/shops/", get_tech_shops)
     ]

@@ -1,8 +1,24 @@
 from nailmanagement.app.db.supabase_client import supabase
 from nailmanagement.app.services.utils import hash_pin, verify_pin
+from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_tech
 class Techs:
 
     def register_tech(self, shop_id: int, user_id: int, commission_rate: int, pin: str = None):
+        """
+        Registers a tech for a specific shop by inserting the tech information into the database table
+        
+        Args:
+            shop_id (int): The ID of the shop
+            user_id (int): The ID of the tech user
+            commission_rate (int): The commission rate for the tech
+            pin (str, optional): The PIN for the tech. Defaults to None.
+                
+        Returns:
+            dict: Newly registered tech record
+        
+        Raises:
+            Exception: If there is an error during the registration process
+        """
         #check if tech already exists
         try:
             tech = (
@@ -66,4 +82,39 @@ class Techs:
 
         except Exception as e:
             print("There was an error updating tech pin")
+            raise e
+
+    def get_tech_shops(self, uuid: str):
+        """
+        Retrieves the shops associated with a specific tech user by querying the database table
+        
+        Args:
+            uuid (str): The UUID of the tech user
+            
+        Returns:
+            list: List of shops associated with the tech user
+            
+        Raises:
+            Exception: If there is an error during the retrieval process
+        """
+        try:
+            userID = get_user_id(uuid)
+
+            if userID == -1:
+                raise ValueError("User not found")
+            
+            response = (
+                supabase.table("techs")
+                .select("shop_id, commission_rate, shops(name)")
+                .eq("user_id", userID)
+                .execute()
+            )
+
+            if not response.data:
+                return []
+
+            return response.data
+        
+        except Exception as e:
+            print(f"Error retrieving shops for tech {uuid}")
             raise e
