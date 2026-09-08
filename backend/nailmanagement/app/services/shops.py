@@ -512,49 +512,6 @@ class Shops:
             print(f"There was an issue updating shop information for {shopID}")
             raise e
 
-   
-    def add_new_tech(self, uuid: str, shop_id: int, email: str, commission_rate: int):
-        try:
-            user_id = get_user_id(uuid)
-            if user_id == -1:
-                raise ValueError("User not found")
-
-            owner_id = get_owner_id(shop_id)
-     
-            if owner_id != user_id:
-                raise ValueError("Invalid access")
-            
-            data = (
-                supabase.table("users")
-                .select("user_id")
-                .eq("email", email)
-                .execute().data
-            ) 
-
-            if data:
-                user_id = data[0]["user_id"]
-                tech = Techs()
-                response = tech.register_tech(shop_id, user_id, commission_rate)
-                return response.data
-            
-            else:
-                
-                invite = supabase.auth.admin.invite_user_by_email(
-                    email,
-                    options = {
-                        "data": {
-                            "shop_id": shop_id,
-                            "commission_rate": commission_rate,
-                        }
-                    }
-                    )
-                
-                return {"Message": "Invitation sent successfully"}
-        
-        except Exception as e:
-            print(f"Error: {e}")
-            raise e
-
     
 
     

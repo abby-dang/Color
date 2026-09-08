@@ -53,35 +53,95 @@ class Techs:
             print(f"Error registering tech for shop {shop_id}")
             raise e
 
-    def change_pin(self, user_id: int, tech_id: int, shop_id: int, pin: str):
+    def verify_pin(self, user_id: int, shop_id: int, pin: str) -> bool:
+        """
+        Verifies the provided pin for a specific tech user in a specific shop by comparing it with the stored pin hash in the database
+        
+        Args:
+            user_id (int): The ID of the tech user
+            shop_id (int): The ID of the shop
+            pin (str): The pin to verify
+
+        Returns:
+            bool: True if the pin is valid, False otherwise
+
+        Raises:
+            ValueError: If the tech user is not found or the pin is invalid
+        """
         try:
-            tech = (
+
+            if is_tech(user_id, shop_id) is False:
+                raise ValueError("User is not a tech for this shop")
+
+            data = (
+                    supabase.table("techs")
+                    .select("pin_hash")
+                    .eq("shop_id", shop_id)
+                    .eq("user_id", user_id)
+                    .execute().data[0]
+                )
+            
+            if data['pin_hash'] is None:
+                raise ValueError("Tech does not have a pin set")
+
+            verified = verify_pin(pin, data['pin_hash'])
+
+            return verified
+
+        except Exception as e:
+            print(f"Error verifying pin for tech {user_id} in shop {shop_id} : {e}")
+            raise e
+        
+    def change_pin(self, user_id: int, shop_id: int, pin: str, current_pin: str = None):
+        """
+        Changes the pin for a specific tech user in a specific shop by updating the stored pin hash
+        
+        Args:
+            user_id (int): The ID of the tech user
+            shop_id (int): The ID of the shop
+            pin (str): The new pin
+            current_pin (str, optional): The current pin for verification
+
+        Returns:
+            dict: The response from the database update operation
+
+        Raises:
+            ValueError: If the tech user is not found or the pin is invalid
+        """
+        try:
+            data = (
                 supabase.table("techs")
-                .select("user_id")
+                .select("pin_hash")
                 .eq("shop_id", shop_id)
-                .eq("tech_id", tech_id)
-                .execute().data[0]["user_id"]
+                .eq("user_id", user_id)
+                .execute().data[0]
             )
 
-            if user_id != tech:
-                raise ValueError("Unauthorized access")
+            if is_tech(user_id, shop_id) is False:
+                raise ValueError("User is not a tech for this shop")
 
-            if len(pin) != 4:
-                raise ValueError("Pin must be exactly 4 digits long")
+            if data.get("pin_hash"):
+                verified = verify_pin(current_pin, data["pin_hash"])
+                if not verified:
+                    raise ValueError("Current pin is incorrect")
 
+            if len(pin) < 4:
+                raise ValueError("Pin must be at least 4 digits long")
+            
             hashed_pin = hash_pin(pin)
 
             response = (
                 supabase.table("techs")
                 .update({"pin_hash": hashed_pin})
-                .eq("tech_id", tech_id)
+                .eq("user_id", user_id)
+                .eq("shop_id", shop_id)
                 .execute()
             )
 
             return response
 
         except Exception as e:
-            print("There was an error updating tech pin")
+            print(f"There was an error updating tech pin : {e}")
             raise e
 
     def get_tech_shops(self, uuid: str):
