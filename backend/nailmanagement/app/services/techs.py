@@ -282,3 +282,97 @@ class Techs:
         except Exception as e:
             print(f"Error signing out tech {user_id} for shop {shop_id} : {e}")
             raise e
+
+    #TODO: CONNECT WITH API AND TEST
+    def get_tech_attendance(self, user_id: int, shop_id: int):
+        """
+        Retrieves the attendance records for a specific tech user in a specific shop
+        
+        Args:
+            user_id (int): The ID of the tech user
+            shop_id (int): The ID of the shop
+
+        Returns:
+            list: List of attendance records for the tech user in the shop
+
+        Raises:
+            ValueError: If the tech user is not found or there are no attendance records
+        """
+        try:
+            if not is_tech(user_id, shop_id):
+                raise ValueError("User is not a tech for this shop")
+
+            data = (
+                supabase.table("techs")
+                .select("tech_id")
+                .eq("shop_id", shop_id)
+                .eq("user_id", user_id)
+                .execute().data[0]
+            )
+
+            tech_id = data["tech_id"]
+
+            # Get all attendance records for the tech
+            attendance_records = (
+                supabase.table("tech_attendance")
+                .select("*")
+                .eq("tech_id", tech_id)
+                .eq("shop_id", shop_id)
+                .order("check_in", desc=True)
+                .execute().data
+            )
+
+            return attendance_records
+
+        except Exception as e:
+            print(f"Error retrieving attendance records for tech {user_id} in shop {shop_id} : {e}")
+            raise e
+
+    #TODO: CONNECT WITH API AND TEST
+    def get_tech_attendance_by_date(self, user_id: int, shop_id: int, date: str):
+        """
+        Retrieves the attendance records for a specific tech user in a specific shop on a specific date
+
+        Args:
+            user_id (int): The ID of the tech user
+            shop_id (int): The ID of the shop
+            date (str): The date for which to retrieve attendance records
+
+        Returns:
+            list: List of attendance records for the tech user in the shop on the specified date
+
+        Raises:
+            ValueError: If the tech user is not found or there are no attendance records
+        """
+        try:
+            if not is_tech(user_id, shop_id):
+                raise ValueError("User is not a tech for this shop")
+
+            #TODO: create function to convert date to supabase format 
+            data = (
+                supabase.table("techs")
+                .select("tech_id")
+                .eq("shop_id", shop_id)
+                .eq("user_id", user_id)
+                .execute().data[0]
+            )
+
+            tech_id = data["tech_id"]
+
+            # Get attendance records for the tech on the specified date
+            attendance_records = (
+                supabase.table("tech_attendance")
+                .select("*")
+                .eq("tech_id", tech_id)
+                .eq("shop_id", shop_id)
+                .eq("check_in::date", date)
+                .execute().data
+            )
+
+            return attendance_records
+
+        except Exception as e:
+            print(f"Error retrieving attendance records for tech {user_id} in shop {shop_id} on date {date} : {e}")
+            raise e
+
+    
