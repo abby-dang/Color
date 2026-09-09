@@ -48,7 +48,6 @@ def complete_invite(request):
             if response is None:
                 return JsonResponse({"Error": "Registration failed"}, status=400)
             
-            pin = body["pin"]
             metadata = request.supabase_user.user.user_metadata
             
             shop_id = metadata.get("shop_id")
@@ -56,7 +55,7 @@ def complete_invite(request):
 
             tech = Techs()
 
-            tech_response = tech.register_tech(shop_id, response["user_id"], commission_rate, pin)
+            tech_response = tech.register_tech(shop_id, response["user_id"], commission_rate)
 
             if tech_response is None:
                 return JsonResponse({"Error": "Tech registration failed"}, status=400)

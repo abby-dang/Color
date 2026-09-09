@@ -39,18 +39,46 @@ def verify_tech_pin(request, user_id, shop_id):
             return JsonResponse({"Error": str(e)}, status = 400)
 
 @csrf_exempt
-def change_pin(request, user_id, shop_id):
+def generate_new_pin(request, user_id, shop_id):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            current_pin = body.get("current_pin", None)
+            response = tech.generate_new_pin(user_id, shop_id, current_pin)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue generating the new pin"}, status = 400)
+
+            return JsonResponse({"message": "Pin generated successfully"})
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)
+@csrf_exempt
+def clock_in_tech(request, user_id, shop_id):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
             pin = body["pin"]
-            current_pin = body.get("current_pin", None)
-            response = tech.change_pin(user_id, shop_id, pin, current_pin)
+            response = tech.clock_in_tech(user_id, shop_id, pin)
 
             if response is None:
-                return JsonResponse({"Error": "There was an issue updating the pin"}, status = 400)
+                return JsonResponse({"Error": "There was an issue signing in the tech"}, status = 400)
 
-            return JsonResponse({"message": "Pin updated successfully"})
+            return JsonResponse({"message": "Tech signed in successfully"})
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)
+
+@csrf_exempt
+def clock_out_tech(request, user_id, shop_id):
+    if request.method == "POST":
+        try:
+            response = tech.clock_out_tech(user_id, shop_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue signing out the tech"}, status = 400)
+
+            return JsonResponse({"message": "Tech signed out successfully"})
 
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
