@@ -60,6 +60,7 @@ def verify_date_format(date_str: str) -> bool:
     pattern = r"^\d{4}-\d{2}-\d{2}$"
     return re.match(pattern, date_str) is not None
 
+    return utc_date_str
 def generate_tech_pin() -> str:
     """
     Generates a random 4-digit pin for a tech user
@@ -69,3 +70,4 @@ def generate_tech_pin() -> str:
     """
     import random
     return str(random.randint(1000, 9999))
+

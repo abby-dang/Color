@@ -81,3 +81,19 @@ def clock_out_tech(request, shop_id):
 
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
+
+def get_tech_attendance(request, shop_id):
+    if request.method == "GET":
+        try:
+            uuid = request.supabase_user.user.id #gets the user's uuid
+            date = request.GET.get("date")
+            response = tech.get_tech_attendance(uuid, shop_id, date)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue retrieving attendance records"}, status = 400)
+
+            return JsonResponse(response, safe=False)
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)
+

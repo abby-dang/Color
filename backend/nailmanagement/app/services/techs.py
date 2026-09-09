@@ -1,7 +1,7 @@
 from nailmanagement.app.db.supabase_client import supabase
-from nailmanagement.app.services.utils import generate_tech_pin, hash_pin, verify_pin
+from nailmanagement.app.services.utils import generate_tech_pin, hash_pin, verify_date_format, verify_pin
 from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_tech
-import datetime
+from datetime import datetime, timezone, timedelta
 class Techs:
 
     def register_tech(self, shop_id: int, user_id: int, commission_rate: int):
@@ -300,65 +300,15 @@ class Techs:
             print(f"Error signing out tech {user_id} for shop {shop_id} : {e}")
             raise e
 
-    #TODO: CONNECT WITH API AND TEST
-    def get_tech_attendance(self, uuid: str, shop_id: int):
-        """
-        Retrieves the attendance records for a specific tech user in a specific shop
-        
-        Args:
-            uuid (str): The UUID of the tech user
-            shop_id (int): The ID of the shop
 
-        Returns:
-            list: List of attendance records for the tech user in the shop
-
-        Raises:
-            ValueError: If the tech user is not found or there are no attendance records
-        """
-        try:
-            user_id = get_user_id(uuid)
-
-            if user_id == -1:
-                raise ValueError("User not found")
-
-            if not is_tech(user_id, shop_id):
-                raise ValueError("User is not a tech for this shop")
-
-            data = (
-                supabase.table("techs")
-                .select("tech_id")
-                .eq("shop_id", shop_id)
-                .eq("user_id", user_id)
-                .execute().data[0]
-            )
-
-            tech_id = data["tech_id"]
-
-            # Get all attendance records for the tech
-            attendance_records = (
-                supabase.table("tech_attendance")
-                .select("*")
-                .eq("tech_id", tech_id)
-                .eq("shop_id", shop_id)
-                .order("check_in", desc=True)
-                .execute().data
-            )
-
-            return attendance_records
-
-        except Exception as e:
-            print(f"Error retrieving attendance records for tech {user_id} in shop {shop_id} : {e}")
-            raise e
-
-    #TODO: CONNECT WITH API AND TEST
-    def get_tech_attendance_by_date(self, uuid: str, shop_id: int, date: str):
+    def get_tech_attendance(self, uuid: str, shop_id: int, date: str = None):
         """
         Retrieves the attendance records for a specific tech user in a specific shop on a specific date
 
         Args:
             uuid (str): The UUID of the tech user
             shop_id (int): The ID of the shop
-            date (str): The date for which to retrieve attendance records
+            date (str): The date for which to retrieve attendance records, YYYY-MM-DD format. If None, retrieves records for the current date.
 
         Returns:
             list: List of attendance records for the tech user in the shop on the specified date
@@ -375,7 +325,9 @@ class Techs:
             if not is_tech(user_id, shop_id):
                 raise ValueError("User is not a tech for this shop")
 
-            #TODO: create function to convert date to supabase format 
+            if date is not None and verify_date_format(date) is False:
+                raise ValueError("Date format is invalid. Please use YYYY-MM-DD format.")
+        
             data = (
                 supabase.table("techs")
                 .select("tech_id")
@@ -387,12 +339,19 @@ class Techs:
             tech_id = data["tech_id"]
 
             # Get attendance records for the tech on the specified date
+            if date is None:
+                date = datetime.now(timezone.utc).date().isoformat()
+
+            date_start = f"{date}T00:00:00Z"
+            date_end = f"{date}T23:59:59Z"
+
             attendance_records = (
                 supabase.table("tech_attendance")
                 .select("*")
                 .eq("tech_id", tech_id)
                 .eq("shop_id", shop_id)
-                .eq("check_in::date", date)
+                .gte("check_in", date_start)
+                .lte("check_in", date_end)
                 .execute().data
             )
 
@@ -488,3 +447,5 @@ class Techs:
         except Exception as e:
             print(f"Error removing skill for tech {user_id} in shop {shop_id} : {e}")
             raise e
+
+    
