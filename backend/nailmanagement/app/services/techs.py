@@ -54,12 +54,12 @@ class Techs:
             print(f"Error registering tech for shop {shop_id}")
             raise e
 
-    def verify_pin(self, user_id: int, shop_id: int, pin: str) -> bool:
+    def verify_pin(self, uuid: str, shop_id: int, pin: str) -> bool:
         """
         Verifies the provided pin for a specific tech user in a specific shop by comparing it with the stored pin hash in the database
         
         Args:
-            user_id (int): The ID of the tech user
+            uuid (str): The ID of the tech user
             shop_id (int): The ID of the shop
             pin (str): The pin to verify
 
@@ -70,7 +70,10 @@ class Techs:
             ValueError: If the tech user is not found or the pin is invalid
         """
         try:
-
+            user_id = get_user_id(uuid)
+            if user_id == -1:
+                raise ValueError("User not found")
+            
             if is_tech(user_id, shop_id) is False:
                 raise ValueError("User is not a tech for this shop")
 
@@ -90,15 +93,15 @@ class Techs:
             return verified
 
         except Exception as e:
-            print(f"Error verifying pin for tech {user_id} in shop {shop_id} : {e}")
+            print(f"Error verifying pin for tech {uuid} in shop {shop_id} : {e}")
             raise e
         
-    def generate_new_pin(self, user_id: int, shop_id: int, current_pin: str = None):
+    def generate_new_pin(self, uuid: str, shop_id: int, current_pin: str = None):
         """
         Generates a new pin for a specific tech user in a specific shop
         
         Args:
-            user_id (int): The ID of the tech user
+            uuid (str): The UUID of the tech user
             shop_id (int): The ID of the shop
             pin (str): The new pin
             current_pin (str, optional): The current pin for verification
@@ -110,17 +113,21 @@ class Techs:
             ValueError: If the tech user is not found or the pin is invalid
         """
         try:
-            data = (
-                supabase.table("techs")
-                .select("pin_hash")
-                .eq("shop_id", shop_id)
-                .eq("user_id", user_id)
-                .execute().data[0]
-            )
-
+            user_id = get_user_id(uuid)
+            if user_id == -1:
+                raise ValueError("User not found")
+            
             if is_tech(user_id, shop_id) is False:
                 raise ValueError("User is not a tech for this shop")
-
+            
+            data = (
+                    supabase.table("techs")
+                    .select("pin_hash")
+                    .eq("shop_id", shop_id)
+                    .eq("user_id", user_id)
+                    .execute().data[0]
+                )
+            
             if data.get("pin_hash"):
                 verified = verify_pin(current_pin, data["pin_hash"])
                 if not verified:
@@ -131,7 +138,7 @@ class Techs:
             hashed_pin = hash_pin(pin)
 
             #TODO: Send pin to tech via email or sms
-            print(f"Generated new pin for tech {user_id} in shop {shop_id}: {pin}")
+            print(f"Generated new pin for tech {uuid} in shop {shop_id}: {pin}")
 
             response = (
                 supabase.table("techs")
@@ -182,12 +189,12 @@ class Techs:
             print(f"Error retrieving shops for tech {uuid}")
             raise e
 
-    def clock_in_tech(self, user_id: int, shop_id: int, pin: str):
+    def clock_in_tech(self, uuid: str, shop_id: int, pin: str):
         """
         Signs in a tech user for a specific shop by verifying the provided pin
         
         Args:
-            user_id (int): The ID of the tech user
+            uuid (str): The UUID of the tech user
             shop_id (int): The ID of the shop
             pin (str): The pin to verify
 
@@ -198,6 +205,11 @@ class Techs:
             ValueError: If the tech user is not found or the pin is invalid
         """
         try:
+            user_id = get_user_id(uuid)
+
+            if user_id == -1:
+                raise ValueError("User not found")
+
             if not is_tech(user_id, shop_id):
                 raise ValueError("User is not a tech for this shop")
 
@@ -226,12 +238,12 @@ class Techs:
             print(f"Error signing in tech {user_id} for shop {shop_id} : {e}")
             raise e
 
-    def clock_out_tech(self, user_id: int, shop_id: int):
+    def clock_out_tech(self, uuid: str, shop_id: int):
         """
         Signs out a tech user for a specific shop by updating the check-out time in the database
         
         Args:
-            user_id (int): The ID of the tech user
+            uuid (str): The UUID of the tech user
             shop_id (int): The ID of the shop   
 
         Returns:
@@ -240,6 +252,11 @@ class Techs:
             ValueError: If the tech user is not found or there is no active check-in record
         """
         try:
+            user_id = get_user_id(uuid)
+
+            if user_id == -1:
+                raise ValueError("User not found")
+
             if not is_tech(user_id, shop_id):
                 raise ValueError("User is not a tech for this shop")
 
@@ -284,12 +301,12 @@ class Techs:
             raise e
 
     #TODO: CONNECT WITH API AND TEST
-    def get_tech_attendance(self, user_id: int, shop_id: int):
+    def get_tech_attendance(self, uuid: str, shop_id: int):
         """
         Retrieves the attendance records for a specific tech user in a specific shop
         
         Args:
-            user_id (int): The ID of the tech user
+            uuid (str): The UUID of the tech user
             shop_id (int): The ID of the shop
 
         Returns:
@@ -299,6 +316,11 @@ class Techs:
             ValueError: If the tech user is not found or there are no attendance records
         """
         try:
+            user_id = get_user_id(uuid)
+
+            if user_id == -1:
+                raise ValueError("User not found")
+
             if not is_tech(user_id, shop_id):
                 raise ValueError("User is not a tech for this shop")
 
@@ -329,12 +351,12 @@ class Techs:
             raise e
 
     #TODO: CONNECT WITH API AND TEST
-    def get_tech_attendance_by_date(self, user_id: int, shop_id: int, date: str):
+    def get_tech_attendance_by_date(self, uuid: str, shop_id: int, date: str):
         """
         Retrieves the attendance records for a specific tech user in a specific shop on a specific date
 
         Args:
-            user_id (int): The ID of the tech user
+            uuid (str): The UUID of the tech user
             shop_id (int): The ID of the shop
             date (str): The date for which to retrieve attendance records
 
@@ -345,6 +367,11 @@ class Techs:
             ValueError: If the tech user is not found or there are no attendance records
         """
         try:
+            user_id = get_user_id(uuid)
+
+            if user_id == -1:
+                raise ValueError("User not found")
+
             if not is_tech(user_id, shop_id):
                 raise ValueError("User is not a tech for this shop")
 
@@ -375,4 +402,89 @@ class Techs:
             print(f"Error retrieving attendance records for tech {user_id} in shop {shop_id} on date {date} : {e}")
             raise e
 
-    
+    def add_tech_skills(self, uuid: str, shop_id: int, skill_ids: list):
+        """
+        Adds skills to a specific tech user in a specific shop by inserting the skill information into the database table
+        
+        Args:
+            uuid (str): The UUID of the tech user
+            shop_id (int): The ID of the shop
+            skill_ids (list): List of skill IDs to add to the tech user
+
+        Returns:
+            dict: The response from the database insert operation
+
+        Raises:
+            ValueError: If the tech user is not found or there is an error during the insertion process
+        """
+        try:
+            user_id = get_user_id(uuid)
+
+            if user_id == -1:
+                raise ValueError("User not found")
+            
+            if not is_tech(user_id, shop_id):
+                raise ValueError("User is not a tech for this shop")
+
+            data = (
+                supabase.table("techs")
+                .select("tech_id")
+                .eq("shop_id", shop_id)
+                .eq("user_id", user_id)
+                .execute().data[0]
+            )
+
+            tech_id = data["tech_id"]
+
+            # Insert skills for the tech
+            skill_records = [{"tech_id": tech_id, "skill_id": skill_id} for skill_id in skill_ids]
+
+            response = (
+                supabase.table("tech_skills")
+                .insert(skill_records)
+                .execute()
+            )
+
+            return response
+
+        except Exception as e:
+            print(f"Error adding skills for tech {user_id} in shop {shop_id} : {e}")
+            raise e
+
+    def remove_tech_skill(self, uuid: str, shop_id: int, skill_id: int):
+        """
+        Removes a skill from a specific tech user in a specific shop by deleting the skill information from the database table
+        """
+        try:
+            user_id = get_user_id(uuid)
+
+            if user_id == -1:
+                raise ValueError("User not found")
+
+            if not is_tech(user_id, shop_id):
+                raise ValueError("User is not a tech for this shop")
+
+            data = (
+                supabase.table("techs")
+                .select("tech_id")
+                .eq("shop_id", shop_id)
+                .eq("user_id", user_id)
+                .execute().data[0]
+            )
+
+            tech_id = data["tech_id"]
+
+            # Delete the skill for the tech
+            response = (
+                supabase.table("tech_skills")
+                .delete()
+                .eq("tech_id", tech_id)
+                .eq("skill_id", skill_id)
+                .execute()
+            )
+
+            return response
+
+        except Exception as e:
+            print(f"Error removing skill for tech {user_id} in shop {shop_id} : {e}")
+            raise e

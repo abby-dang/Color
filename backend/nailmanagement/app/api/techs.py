@@ -21,14 +21,13 @@ def get_tech_shops(request):
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
 @csrf_exempt
-def verify_tech_pin(request, user_id, shop_id):
+def verify_tech_pin(request, shop_id):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
             pin = body["pin"]
 
-            print(f"Verifying pin for tech {user_id} in shop {shop_id} with pin {pin}")
-            response = tech.verify_pin(user_id, shop_id, pin)
+            response = tech.verify_pin(request.supabase_user.user.id, shop_id, pin)
             
             if response is None:
                 return JsonResponse({"Error": "There was an issue verifying the pin"}, status = 400)
@@ -39,12 +38,12 @@ def verify_tech_pin(request, user_id, shop_id):
             return JsonResponse({"Error": str(e)}, status = 400)
 
 @csrf_exempt
-def generate_new_pin(request, user_id, shop_id):
+def generate_new_pin(request, shop_id):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
             current_pin = body.get("current_pin", None)
-            response = tech.generate_new_pin(user_id, shop_id, current_pin)
+            response = tech.generate_new_pin(request.supabase_user.user.id, shop_id, current_pin)
 
             if response is None:
                 return JsonResponse({"Error": "There was an issue generating the new pin"}, status = 400)
@@ -54,12 +53,12 @@ def generate_new_pin(request, user_id, shop_id):
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
 @csrf_exempt
-def clock_in_tech(request, user_id, shop_id):
+def clock_in_tech(request, shop_id):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
             pin = body["pin"]
-            response = tech.clock_in_tech(user_id, shop_id, pin)
+            response = tech.clock_in_tech(request.supabase_user.user.id, shop_id, pin)
 
             if response is None:
                 return JsonResponse({"Error": "There was an issue signing in the tech"}, status = 400)
@@ -70,10 +69,10 @@ def clock_in_tech(request, user_id, shop_id):
             return JsonResponse({"Error": str(e)}, status = 400)
 
 @csrf_exempt
-def clock_out_tech(request, user_id, shop_id):
+def clock_out_tech(request, shop_id):
     if request.method == "POST":
         try:
-            response = tech.clock_out_tech(user_id, shop_id)
+            response = tech.clock_out_tech(request.supabase_user.user.id, shop_id)
 
             if response is None:
                 return JsonResponse({"Error": "There was an issue signing out the tech"}, status = 400)

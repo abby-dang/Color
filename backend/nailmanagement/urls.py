@@ -64,8 +64,8 @@ urlpatterns = [
 
     #techs
     path(f"{TECH_BASE_URL}/shops/", get_tech_shops),
-    path(f"{TECH_BASE_URL}/<int:user_id>/verify/<int:shop_id>/", verify_tech_pin),
-    path(f"{TECH_BASE_URL}/<int:user_id>/change_pin/<int:shop_id>/", generate_new_pin),
-    path(f"{TECH_BASE_URL}/<int:user_id>/clockin/<int:shop_id>/", clock_in_tech),
-    path(f"{TECH_BASE_URL}/<int:user_id>/clockout/<int:shop_id>/", clock_out_tech),
+    path(f"{TECH_BASE_URL}/verify/<int:shop_id>/", verify_tech_pin),
+    path(f"{TECH_BASE_URL}/change_pin/<int:shop_id>/", generate_new_pin),
+    path(f"{TECH_BASE_URL}/clockin/<int:shop_id>/", clock_in_tech),
+    path(f"{TECH_BASE_URL}/clockout/<int:shop_id>/", clock_out_tech),
     ]
