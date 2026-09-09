@@ -24,7 +24,7 @@ This NTMS is designed to solve the operational overhead of running a nail salon.
 
 - **User & shop registration** — end-to-end account creation logic linking authenticated users to shop records
 - **Relational database** — 11-table schema supporting secure, role-based data access
-- **Backend API** — 8+ endpoints built so far covering authentication and registration logic, tested with Postman as development continues
+- **Backend API** — 30+ endpoints built so far covering authentication and registration logic, tested with Postman as development continues
 - **Owner management logic (in progress)** — backend logic for staff management and shop editing across services, staff skill sets, and pricing
 - **Role-based access control (in progress)** — shop-level permission checks to distinguish owners, techs, and standard users when accessing a shop
 
@@ -44,7 +44,7 @@ Frontend implementation (React) is planned next.
 - [x] User & shop registration flows
 
 **In progress / planned:**
-- [ ] Backend API — additional endpoints still being built and tested via Postman (8+ completed so far)
+- [ ] Backend API — additional endpoints still being built and tested via Postman (30+ completed so far)
 - [ ] Role-based access control (owner, tech, standard user)
 - [ ] New tech registration flow
 - [ ] Frontend build — React UI for registration, login, and owner dashboard
