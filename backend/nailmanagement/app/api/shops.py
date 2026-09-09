@@ -14,12 +14,6 @@ def register(request):
         try: 
             body = json.loads(request.body)
     
-            ownerId = (
-                supabase.table("users")
-                .select("user_id")
-                .eq("uuid", uuid)
-                .execute().data[0]["user_id"]
-            )
             address = body["address"]
             phone = body["phone"]
             open_t = body["open_t"]
@@ -30,7 +24,7 @@ def register(request):
             close_d = body["close_d"]
             open_d = body["open_d"]
 
-            response = shops.register_shop(name, phone, pin, address, open_t, close_t, email, close_d, open_d, ownerId)
+            response = shops.register_shop(name, phone, pin, address, open_t, close_t, email, close_d, open_d, uuid)
 
             if response is None:
                 return JsonResponse({"Error": "Shop registration failed"}, status = 400)
@@ -95,12 +89,6 @@ def update_shop_info(request, shop_id):
         
         try:
             body = json.loads(request.body)
-            user_id = (
-                supabase.table("users")
-                .select("user_id")
-                .eq("uuid", uuid)
-                .execute().data[0]["user_id"]
-            )
             name = body["name"]
             phone = body["phone"]
             address = body["address"]
@@ -111,7 +99,7 @@ def update_shop_info(request, shop_id):
             close_d = body["close_d"]
             pin = body["pin"]
 
-            response = shops.update_shop_info(user_id, shop_id, pin, name, phone, address, email, open_t, close_t, close_d, open_d)
+            response = shops.update_shop_info(uuid, shop_id, pin, name, phone, address, email, open_t, close_t, close_d, open_d)
 
             if response is None:
                 return JsonResponse({"Error":"There was an issue updating the shop information"})
@@ -235,3 +223,24 @@ def get_shop_appointments(request, shop_id, day):
 
         except Exception as e:
             return JsonResponse({"Error" : str(e)}, status = 400)
+
+@csrf_exempt
+def add_new_tech(request, shop_id):
+
+    if request.method == "POST":
+        uuid = request.supabase_user.user.id #gets the user's id
+
+        body = json.loads(request.body)
+        email = body["email"]
+        commission_rate = body["commission_rate"]
+
+        try:
+            response = shops.add_new_tech(uuid, shop_id, email, commission_rate)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue adding new technician to the shop"}, status = 400)
+
+            return JsonResponse(response, safe = False)
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)

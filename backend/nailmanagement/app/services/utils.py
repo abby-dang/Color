@@ -10,14 +10,14 @@ def verify_pin(pin: str, stored_hash: str) -> bool:
     return is_valid
 
 def valid_phone(phone: str) -> bool:
-    validPhoneNum = re.match(r"^\d{10}$", phone)
-    return validPhoneNum
+    cleaned = re.sub(r"\D", "", phone)  # remove non-digits
+    return bool(re.match(r"^\d{10}$", cleaned))
 
 def valid_email(email: str) -> bool:
     validEmail = re.match("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email)
     return validEmail
 def valid_weekdays(days: str) -> bool:
-    validSet = {"s","m","t","w","th","f","sat"}
+    validSet = {"s","m","t","w","th","f","sat", ""}
     cleaned = days.replace(" ", "")
     splitDays = cleaned.split(",")
 
@@ -59,3 +59,15 @@ def verify_date_format(date_str: str) -> bool:
     """
     pattern = r"^\d{4}-\d{2}-\d{2}$"
     return re.match(pattern, date_str) is not None
+
+    return utc_date_str
+def generate_tech_pin() -> str:
+    """
+    Generates a random 4-digit pin for a tech user
+
+    Returns:
+        str: A random 4-digit pin
+    """
+    import random
+    return str(random.randint(1000, 9999))
+

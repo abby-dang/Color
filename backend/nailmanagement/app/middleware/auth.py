@@ -14,8 +14,6 @@ class AuthMiddleware:
         if request.path in excluded_routes:
             return self.get_response(request)
         
-        print(f"Path: {request.path}") #remove after testing
-
         token = request.headers.get("Authorization", "").replace("Bearer ", "")
 
         print(f"Token: {token}")#remove after testing
@@ -26,11 +24,8 @@ class AuthMiddleware:
                 
                 request.supabase_user = user
 
-                print(f"User set: {user}") #remove after testing
             except Exception as e:
 
-                print(f"Auth error: {e}") #remove after testing
-                
                 return JsonResponse({"error": "Invalid or expired token"}, status=401)
 
         return self.get_response(request)
