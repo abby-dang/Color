@@ -97,3 +97,33 @@ def get_tech_attendance(request, shop_id):
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
 
+@csrf_exempt
+def add_tech_skills(request, shop_id):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            skills = body["skills"]
+            response = tech.add_tech_skills(request.supabase_user.user.id, shop_id, skills)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue adding skills to the tech"}, status = 400)    
+
+            return JsonResponse({"message": "Skills added successfully"})
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)
+
+@csrf_exempt
+def remove_tech_skill(request, shop_id, skill_id):
+    if request.method == "DELETE":
+        try:
+            response = tech.remove_tech_skill(request.supabase_user.user.id, shop_id, skill_id)
+
+            if response is None:
+                return JsonResponse({"Error": "There was an issue removing the skill from the tech"}, status = 400)    
+
+            return JsonResponse({"message": "Skill removed successfully"})
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)
+

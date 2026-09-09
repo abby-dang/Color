@@ -21,7 +21,7 @@ from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out, complete_invite
 from nailmanagement.app.api.shops import add_shop_skill, get_shop_info, get_owner_shops, get_shop_commission_total, get_shop_skills, remove_shop_skill, update_shop_info, get_shop_appointments, add_new_tech, register as shop_register
 from nailmanagement.app.api.skills import add_skill, get_skills, get_skills_by_name
-from nailmanagement.app.api.techs import clock_out_tech, generate_new_pin, get_tech_attendance, get_tech_shops, clock_in_tech, verify_tech_pin
+from nailmanagement.app.api.techs import add_tech_skills, clock_out_tech, generate_new_pin, get_tech_attendance, get_tech_shops, clock_in_tech, remove_tech_skill, verify_tech_pin
 BASE_URL = "api"
 AUTH_BASE_URL = f"{BASE_URL}/auth"
 SHOP_BASE_URL = f"{BASE_URL}/shops"
@@ -69,4 +69,6 @@ urlpatterns = [
     path(f"{TECH_BASE_URL}/clockin/<int:shop_id>/", clock_in_tech),
     path(f"{TECH_BASE_URL}/clockout/<int:shop_id>/", clock_out_tech),
     path(f"{TECH_BASE_URL}/attendance/<int:shop_id>/date/", get_tech_attendance),
+    path(f"{TECH_BASE_URL}/skills/<int:shop_id>/add/", add_tech_skills),
+    path(f"{TECH_BASE_URL}/skills/<int:shop_id>/remove/<int:skill_id>/", remove_tech_skill),
     ]
