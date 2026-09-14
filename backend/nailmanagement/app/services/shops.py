@@ -105,40 +105,6 @@ class Shops:
             print(f"Error retrieving shop info for owner_id {ownerID}")
             raise e
 
-    #VIEWABLE TO TECHS
-    def get_tech_shops(self, uuid: str) -> list:
-        """
-        Returns a list of shops for a tech
-
-        Args:
-            uuid (str): user identification
-        Returns:
-            list: of the shop_id and name
-        Raises:
-            Exception: if invalid access or query fails
-        """
-        try:
-            userID = get_user_id(uuid)
-
-            if userID == -1:
-                raise ValueError("User not found")
-
-            response = (
-                supabase.table("techs")
-                .select("shops(shop_id, name)")
-                .eq("user_id", userID)
-                .execute()
-            )
-
-            if not response.data:
-                return []
-            
-            return response.data
-
-        except Exception as e:
-            print(f"Error retrieving shops for tech")
-            raise e  
-        
     #VIEWABLE TO PUBLIC, OWNER, AND TECHS
     def get_shop_info(self, shopID: int, uuid: str = None) -> dict:
         """
@@ -515,6 +481,21 @@ class Shops:
     
 
     def add_new_tech(self, uuid: str, shop_id: int, email: str, commission_rate: int):
+        """
+        Adds a new tech to the shop. If the tech already exists, they will be added to the shop. If not, an invitation will be sent to the provided email.
+        
+        Args:
+            uuid (str): user identification
+            shop_id (int): shop identification number
+            email (str): email of the tech to be added
+            commission_rate (int): commission rate for the tech
+            
+        Returns:
+            dict: If the tech already exists, returns the response from registering the tech. If not, returns a message indicating that an invitation was sent.
+        Raises:
+            ValueError: If the user is not found or if the user does not have access to the shop.
+            Exception: If there is an issue with the database query or invitation process.
+        """
         try:
             user_id = get_user_id(uuid)
             if user_id == -1:
@@ -538,7 +519,7 @@ class Shops:
                 return response
             
             else:
-                print(f"Tech does not exist")
+
                 invite = supabase.auth.admin.invite_user_by_email(
                     email,
                     options = {
@@ -548,8 +529,10 @@ class Shops:
                         }
                     }
                     )
-                print(f"The invite {invite}")
+  
                 return {"Message": "Invitation sent successfully"}
         except Exception as e:
             print(f"Error: {e}")
             raise e
+
+    
