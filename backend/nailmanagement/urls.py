@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from nailmanagement.app.api.appointments import create_appointment
 from nailmanagement.app.api.shop_services import add_service, get_shop_services, remove_shop_service, update_shop_service
 from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out, complete_invite
@@ -27,6 +28,7 @@ AUTH_BASE_URL = f"{BASE_URL}/auth"
 SHOP_BASE_URL = f"{BASE_URL}/shops"
 SKILL_BASE_URL = f"{BASE_URL}/skills"
 TECH_BASE_URL = f"{BASE_URL}/techs"
+APPOINTMENT_BASE_URL = f"{BASE_URL}/shops/<int:shop_id>/appointments"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(f"{AUTH_BASE_URL}/register/", account_register),
@@ -71,4 +73,6 @@ urlpatterns = [
     path(f"{TECH_BASE_URL}/attendance/<int:shop_id>/date/", get_tech_attendance),
     path(f"{TECH_BASE_URL}/skills/<int:shop_id>/add/", add_tech_skills),
     path(f"{TECH_BASE_URL}/skills/<int:shop_id>/remove/<int:skill_id>/", remove_tech_skill),
+    #appointments
+    path(f"{APPOINTMENT_BASE_URL}/create/", create_appointment),
     ]
