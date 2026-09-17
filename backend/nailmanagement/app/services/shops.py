@@ -356,57 +356,10 @@ class Shops:
 
         except Exception as e:
 
-            print(f"Error removing skill {skillID} from shop {shopID}")
+            print(f"Error removing skill {shop_skill_id} from shop {shopID}")
 
             raise e
 
-
-    #ONLY VIEWABLE TO OWNER AND TECHS
-    def get_shop_appointments(self, uuid: str, day: str, shopID: int) -> list:
-        """
-        Retrieves all appointments associated with a shop on a given day
-
-        Args:
-            uuid (str): user identification
-            day (datetime): the desired day 
-            shopID (int): shop identification number
-        
-        Returns:
-            list: a list of appointments' appointment_id, client_name, time, status
-        
-        Raises:
-            Exception: if querying fails
-        """
-        if not verify_date_format(day):
-            raise ValueError("Invalid date format. Please use YYYY-MM-DD.")
-
-        date_object = datetime.strptime(day, "%Y-%m-%d").date()
-
-        try:
-            userID = get_user_id(uuid)
-            if userID == -1:
-                raise ValueError("User not found")
-            
-            ownerID = get_owner_id(shopID)
-
-            if(is_tech(userID, shopID) == False) and (ownerID != userID):
-                raise ValueError("Invalid access")
-            
-            response = (
-                supabase.table("appointments")
-                .select("appointment_id, client_name, time, status")
-                .eq("shop_id", shopID)
-                .eq("day", date_object)
-                .execute()
-            )
-
-            return response.data
-
-        except Exception as e:
-
-            print(f"Error retrieving appointment information for shop {shopID}")
-
-            raise e
 
     #OWNER ONLY
     def update_shop_info(self, uuid: str, shopID: int, pin: str, name: str, phone: str, address: str, email: str, open_t: time, close_t: time, close_d: str, open_d: str):
