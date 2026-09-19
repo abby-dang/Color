@@ -1,5 +1,6 @@
 import bcrypt
 import re
+from datetime import datetime, timezone
 
 def hash_pin(pin: int) -> str:
     hashed = bcrypt.hashpw(pin.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
@@ -70,3 +71,74 @@ def generate_tech_pin() -> str:
     import random
     return str(random.randint(1000, 9999))
 
+def convert_date_time(date: str, time: str) -> datetime:
+    """
+    Converts date and time strings to a datetime object
+
+    Args:
+        date (str): date string in any supported format (e.g. "2026-09-20", "09/20/2026")
+        time (str): time string in any supported format (e.g. "14:00:00", "14:00")
+
+    Returns:
+        datetime: a datetime object in %Y-%m-%d %H:%M format
+
+    Raises:
+        ValueError: if date or time format is invalid
+    """
+    time = convert_time(time)
+    date = convert_date(date)
+    return datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+
+def convert_time(time: str) -> str:
+    """
+    Converts a time string to %H:%M format
+
+    Args:
+        time (str): time string to convert
+
+    Returns:
+        str: time in %H:%M format
+    
+    Raises:
+        ValueError: if time format is invalid
+    """
+    try:
+        converted = datetime.strptime(time, "%H:%M:%S").strftime("%H:%M")
+        return converted
+    except ValueError:
+        try:
+            converted = datetime.strptime(time, "%H:%M").strftime("%H:%M")
+            return converted
+        except ValueError:
+            raise ValueError(f"Invalid time format: {time}")
+
+def convert_date(date: str) -> str:
+    """
+    Converts a date string to %Y-%m-%d format
+
+    Args:
+        date (str): date string to convert
+
+    Returns:
+        str: date in %Y-%m-%d format
+    
+    Raises:
+        ValueError: if date format is invalid
+    """
+    formats = [
+        "%Y-%m-%d",     # 2026-09-20
+        "%m/%d/%Y",     # 09/20/2026
+        "%d/%m/%Y",     # 20/09/2026
+        "%B %d, %Y",    # September 20, 2026
+        "%b %d, %Y",    # Sep 20, 2026
+        "%m-%d-%Y",     # 09-20-2026
+    ]
+
+    for fmt in formats:
+        try:
+            converted = datetime.strptime(date, fmt).strftime("%Y-%m-%d")
+            return converted
+        except ValueError:
+            continue
+    
+    raise ValueError(f"Invalid date format: {date}")

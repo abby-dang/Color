@@ -8,7 +8,8 @@ class Clients:
         """
         """
         try:
-            client = self.get_client(shop_id, email)
+
+            client = self.get_client(shop_id, email = email)
             if not client:
             #search client email, if no email proceed to create new client
                 response = (
@@ -78,7 +79,7 @@ class Clients:
                 raise ValueError("No fields to update provided")
 
             response = (
-                self.supabase.table("shop_services")
+                self.supabase.table("clients")
                 .update(update_data)
                 .eq("shop_id", shop_id)
                 .eq("client_id", client_id)
