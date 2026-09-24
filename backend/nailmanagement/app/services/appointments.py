@@ -19,7 +19,7 @@ class Appointments:
         self.supabase = supabase
         self.appointment_fields = "appointment_id, datetime, status, clients(first_name, last_name, phone)"
 
-    def create_appointment(self, client_id: int, shop_id: int, notes: str, service_ids: list, status: str = "pending", date: str = None, time: str = None, tech_ids: list = None) -> dict:
+    def create_appointment(self, client_id: int, shop_id: int, notes: str, services: list, status: str = "pending", date: str = None, time: str = None) -> dict:
         """
         Creates a new appointment and links it to its services.
 
@@ -31,39 +31,29 @@ class Appointments:
             client_id (int): The ID of the client who is getting scheduled
             shop_id (int): The ID of the shop where the appointment is scheduled
             notes (str): Additional notes for the appointment
-            service_ids (list): IDs of the services booked. Must contain at least one
+            services (list): The services booked, as a list of dicts. Each dict must
+                have a "service_id" and a "tech_id" key, e.g.
+                [{"service_id": 1, "tech_id": 4}]
             status (str): One of "pending", "confirmed", "completed", "cancelled",
                 "in_progress". Defaults to "pending"
             date (str): The appointment date (e.g. "2026-09-20" or "09/20/2026").
                 Defaults to today
             time (str): The appointment time in HH:MM or HH:MM:SS format.
                 Defaults to the current time
-            tech_ids (list): IDs of the technicians, matched to service_ids by position
-                (tech_ids[i] performs service_ids[i]). If omitted, services are saved
-                without a technician
 
         Returns:
             dict: The newly created appointment record
 
         Raises:
-            Exception: if the status is invalid, service_ids is empty, tech_ids and
-                service_ids differ in length, the date/time is invalid, or a
-                database insert fails
+            Exception: if the user is not a client at the shop, the status is
+                invalid, the date/time is invalid, a service dict is missing
+                "service_id" or "tech_id", or a database insert fails
         """
         try:
             if not is_client(client_id=client_id, shop_id=shop_id):
                 raise ValueError("User is not a client at this shop")
             if status not in ["pending", "confirmed", "completed", "cancelled", "in_progress"]:
                 raise ValueError("Invalid status value. Must be one of: pending, confirmed, completed, cancelled, in_progress")
-
-            if not service_ids:
-                raise ValueError("At least one service is required")
-
-            if tech_ids is None:
-                tech_ids = [None] * len(service_ids)
-            elif len(tech_ids) != len(service_ids):
-                raise ValueError("tech_ids must have the same length as service_ids")
-
             if not date:
                 date = datetime.now().strftime("%Y-%m-%d")  # Default to today's date if not provided
             if not time:
@@ -88,10 +78,10 @@ class Appointments:
             services_to_insert = [
                 {
                     "appointment_id": appointment["appointment_id"],
-                    "service_id": service_id,
-                    "tech_id": tech_id,
+                    "service_id": service["service_id"],
+                    "tech_id": service["tech_id"],
                 }
-                for service_id, tech_id in zip(service_ids, tech_ids)
+                for service in services
             ]
 
             try:
@@ -148,7 +138,7 @@ class Appointments:
                 if not any([first_name, last_name, phone, email]):
                     raise ValueError("Provide a client_id or at least one of first_name, last_name, phone, email")
 
-                matches = client.get_client(shop_id, first_name=first_name, last_name=last_name, email=email, phone=phone)
+                matches = client.get_client(uuid, shop_id, first_name=first_name, last_name=last_name, email=email, phone=phone)
                 if not matches:
                     return []
                 query = query.in_("client_id", [match["client_id"] for match in matches])
@@ -205,4 +195,193 @@ class Appointments:
             print(f"Error retrieving appointment information for shop {shop_id}: {e}")
             raise e
 
-    #def get_appointments_by_tech(self, uuid: str, shop_id: int, tech_id: int):
+    def get_appointments_by_tech(self, uuid: str, shop_id: int, tech_id: int):
+        """
+        Retrieves the appointments a technician is assigned to in a shop.
+
+        Looks up the technician's appointment_services rows and embeds the
+        parent appointment (with the client's name and phone) in each one.
+
+        Args:
+            uuid (str): The identifier of the user making the request
+            shop_id (int): The ID of the shop
+            tech_id (int): The ID of the technician
+
+        Returns:
+            list: One entry per service the technician performs, each with tech_id
+                and a nested "appointments" record (appointment_id, datetime (UTC),
+                status and the client's first_name, last_name and phone)
+
+        Raises:
+            ValueError: if the user is not authorized for the shop
+            Exception: if querying fails
+        """
+        try:
+            if not is_authorized(uuid, shop_id):
+                raise ValueError("User is not authorized")
+
+
+            response = (
+                self.supabase.table("appointment_services")
+                .select(f"tech_id, appointments({self.appointment_fields})")
+                .eq("tech_id", tech_id)
+                .eq("appointments.shop_id", shop_id)
+                .execute()
+            )
+
+            return response.data
+
+        except Exception as e:
+            print(f"Error retrieving appointment infomration based on the tech_id given")
+            raise e
+
+    def update_appointment(self, uuid: str, shop_id: int, appointment_id: int, notes: str = None, services: list = None, status: str = None, date: str = None, time: str = None):
+        """
+        Updates an existing appointment.
+
+        Only the fields that are provided (not None) are changed. The appointment
+        row is updated first, then the services are replaced if provided.
+
+        If only one of date or time is given, the other is kept from the
+        appointment's current value (interpreted in the server's local timezone).
+
+        Args:
+            uuid (str): The identifier of the user making the request
+            shop_id (int): The ID of the shop the appointment belongs to
+            appointment_id (int): The ID of the appointment to update
+            notes (str): New notes for the appointment
+            services (list): The full new list of services, as dicts each with a
+                "service_id" and a "tech_id" key. Replaces the existing services
+            status (str): One of "pending", "confirmed", "completed", "cancelled",
+                "in_progress"
+            date (str): New appointment date (e.g. "2026-09-20" or "09/20/2026")
+            time (str): New appointment time in HH:MM or HH:MM:SS format
+
+        Returns:
+            list: The updated appointment record(s). Empty if the appointment was
+                not found in the shop
+
+        Raises:
+            ValueError: if the user is not authorized for the shop, the status,
+                date or time is invalid, services is empty, or there is nothing
+                to update
+            Exception: if a database update fails
+        """
+        def update_appointment_services(appointment_id: int, services: list):
+            """
+            Replaces the appointment_services rows for an appointment.
+
+            The old rows are deleted and the new ones inserted. If the insert
+            fails, the old rows are restored.
+
+            Args:
+                appointment_id (int): The ID of the appointment the services belong to
+                services (list): Dicts each with a "service_id" and a "tech_id" key
+
+            Returns:
+                The database response for the services insert
+
+            Raises:
+                Exception: if the database update fails
+            """
+            try:
+                services_to_insert = [
+                    {
+                        "appointment_id": appointment_id,
+                        "service_id": service["service_id"],
+                        "tech_id": service["tech_id"]
+                    }
+                    for service in services
+                ]
+
+                old_rows = (
+                    self.supabase.table("appointment_services")
+                    .select("appointment_id, service_id, tech_id")
+                    .eq("appointment_id", appointment_id)
+                    .execute()
+                ).data
+
+                self.supabase.table("appointment_services").delete().eq("appointment_id", appointment_id).execute()
+
+                try:
+                    return self.supabase.table("appointment_services").insert(services_to_insert).execute()
+                except Exception:
+                    # Put the old services back so the appointment isn't left with none
+                    if old_rows:
+                        self.supabase.table("appointment_services").insert(old_rows).execute()
+                    raise
+            except Exception as e:
+                print(f"Error updating services: {e}")
+                raise e
+
+        try:
+            if not is_authorized(uuid, shop_id):
+                raise ValueError("Unauthorized Access")
+
+            update_data = {}
+            if status is not None:
+                if status not in ["pending", "confirmed", "completed", "cancelled", "in_progress"]:
+                    raise ValueError("Invalid status value. Must be one of: pending, confirmed, completed, cancelled, in_progress")
+                update_data["status"] = status
+            if notes is not None:
+                update_data["notes"] = notes
+            if services is not None and not services:
+                raise ValueError("At least one service is required")
+
+            if date is not None or time is not None:
+                if date is None or time is None:
+                    # Fill in the missing half from the stored (UTC) datetime, in local time
+                    current = (
+                        self.supabase.table("appointments")
+                        .select("datetime")
+                        .eq("appointment_id", appointment_id)
+                        .eq("shop_id", shop_id)
+                        .execute()
+                    ).data
+                    if not current:
+                        raise ValueError("Appointment not found")
+                    current_local = datetime.fromisoformat(current[0]["datetime"]).astimezone()
+                    if date is None:
+                        date = current_local.strftime("%Y-%m-%d")
+                    if time is None:
+                        time = current_local.strftime("%H:%M")
+
+                # Parsed as server-local time, then converted to UTC for storage
+                new_datetime = convert_date_time(date, time)
+                update_data["datetime"] = new_datetime.astimezone(timezone.utc).isoformat()
+
+            if not update_data and services is None:
+                raise ValueError("No fields to update provided")
+
+            response_data = []
+            if not update_data:
+                # Services-only update: make sure the appointment belongs to this shop
+                response_data = (
+                    self.supabase.table("appointments")
+                    .select("appointment_id")
+                    .eq("appointment_id", appointment_id)
+                    .eq("shop_id", shop_id)
+                    .execute()
+                ).data
+                if not response_data:
+                    raise ValueError("Appointment not found")
+            else:
+                response = (
+                    self.supabase.table("appointments")
+                    .update(update_data)
+                    .eq("appointment_id", appointment_id)
+                    .eq("shop_id", shop_id)
+                    .execute()
+                )
+                response_data = response.data
+                if not response_data:
+                    raise ValueError("Appointment not found")
+
+            if services is not None:
+                update_appointment_services(appointment_id, services)
+
+            return response_data
+
+        except Exception as e:
+            print(f"Error updating appointment: {e}")
+            raise e

@@ -1,5 +1,5 @@
 from nailmanagement.app.db.supabase_client import supabase
-from nailmanagement.app.services.db_helpers import get_user_id
+from nailmanagement.app.services.db_helpers import is_authorized
 class Clients:
     def __init__(self):
         self.supabase = supabase
@@ -9,7 +9,13 @@ class Clients:
         """
         try:
 
-            client = self.get_client(shop_id, email = email)
+            client = (
+                self.supabase.table("clients")
+                .select("*")
+                .eq("shop_id", shop_id)
+                .eq("email", email)
+                .execute()
+            ).data
             if not client:
             #search client email, if no email proceed to create new client
                 response = (
@@ -32,11 +38,14 @@ class Clients:
             print(f"Error inserting client data")
             raise e
 
-    def get_client(self, shop_id: int, client_id: int = None, last_name: str = None, first_name: str = None, email: str = None, phone: str = None):
+    def get_client(self, uuid: str, shop_id: int, client_id: int = None, last_name: str = None, first_name: str = None, email: str = None, phone: str = None):
         """
 
         """
         try:
+            if not is_authorized(uuid, shop_id):
+                raise ValueError("User not authorized")
+            
             query = self.supabase.table("clients").select("*").eq("shop_id", shop_id)
 
             if client_id:
@@ -60,8 +69,7 @@ class Clients:
     def update_client(self, uuid: str, shop_id: int, client_id: int, last_name: str = None, first_name: str = None, email: str = None, phone: str = None):
 
         try:
-            user_id = get_user_id(uuid)
-            if user_id == -1:
+            if not is_authorized(uuid, shop_id):
                 raise ValueError("Unauthorized access")
 
             update_data = {}

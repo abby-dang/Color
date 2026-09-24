@@ -16,14 +16,8 @@ def create_appointment(request, shop_id):
             time = body.get("time")
             services = body.get("services")
             status = body.get("status", "pending")
-
-            service_ids = []
-            tech_ids = []
-            for service in services:
-                service_ids.append(service["service_id"])
-                tech_ids.append(service["tech_id"])
-                
-            appointment = appointments.create_appointment(client_id, shop_id, notes, service_ids, status, date, time, tech_ids)
+   
+            appointment = appointments.create_appointment(client_id, shop_id, notes, services, status, date, time)
 
             return JsonResponse(appointment, safe = False)
         except Exception as e:
