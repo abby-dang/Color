@@ -449,6 +449,18 @@ class Techs:
             raise e
 
     def get_tech_profile(self, tech_id: int):
+        """
+        Retrieves a tech's profile.
+
+        Args:
+            tech_id (int): The tech's ID
+
+        Returns:
+            dict: The tech's first_name, last_name, email and phone
+
+        Raises:
+            Exception: if the tech is not found or the query fails
+        """
         try:
             user_profile = (
                 supabase.table("techs")

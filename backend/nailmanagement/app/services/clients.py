@@ -6,6 +6,22 @@ class Clients:
 
     def create_new_client(self, shop_id: int, first_name: str, last_name: str, email: str, phone: str, notes: str = None):
         """
+        Creates a client in a shop, or returns the existing one with the same email.
+
+        Args:
+            shop_id (int): The shop's ID
+            first_name (str): The client's first name
+            last_name (str): The client's last name
+            email (str): The client's email
+            phone (str): The client's phone number
+            notes (str): Optional notes about the client
+
+        Returns:
+            list: The new client record, or the existing matches if the email
+                is already in the shop
+
+        Raises:
+            Exception: if the query or insert fails
         """
         try:
 
@@ -40,7 +56,24 @@ class Clients:
 
     def get_client(self, uuid: str, shop_id: int, client_id: int = None, last_name: str = None, first_name: str = None, email: str = None, phone: str = None):
         """
+        Searches a shop's clients. Filters are combined; with none, every
+        client in the shop is returned.
 
+        Args:
+            uuid (str): The user making the request
+            shop_id (int): The shop's ID
+            client_id (int): Exact match
+            last_name (str): Partial, case-insensitive match
+            first_name (str): Partial, case-insensitive match
+            email (str): Exact match
+            phone (str): Exact match
+
+        Returns:
+            list: The matching client records
+
+        Raises:
+            ValueError: if the user is not authorized
+            Exception: if the query fails
         """
         try:
             if not is_authorized(uuid, shop_id):
@@ -67,7 +100,25 @@ class Clients:
             raise e
 
     def update_client(self, uuid: str, shop_id: int, client_id: int, last_name: str = None, first_name: str = None, email: str = None, phone: str = None):
+        """
+        Updates a client's details. Only the fields provided are changed.
 
+        Args:
+            uuid (str): The user making the request
+            shop_id (int): The shop's ID
+            client_id (int): The client to update
+            last_name (str): New last name
+            first_name (str): New first name
+            email (str): New email
+            phone (str): New phone number
+
+        Returns:
+            dict: A "Message" saying whether the client was updated
+
+        Raises:
+            ValueError: if the user is not authorized or no fields are given
+            Exception: if the update fails
+        """
         try:
             if not is_authorized(uuid, shop_id):
                 raise ValueError("Unauthorized access")
