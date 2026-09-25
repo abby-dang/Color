@@ -448,4 +448,18 @@ class Techs:
             print(f"Error removing skill for tech {user_id} in shop {shop_id} : {e}")
             raise e
 
+    def get_tech_profile(self, tech_id: int):
+        try:
+            user_profile = (
+                supabase.table("techs")
+                .select("users(first_name, last_name, email, phone)")
+                .eq("tech_id", tech_id)
+                .execute()
+            )
+
+            return user_profile.data[0]["users"]
+        except Exception as e: 
+            print(f"Error retrieving tech profile")
+            raise e
+            
     

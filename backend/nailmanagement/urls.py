@@ -16,20 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from nailmanagement.app.api.appointments import create_appointment, get_appointment_by_date, get_appointment_by_client
+from nailmanagement.app.api.appointments import update_appointment, get_appointment, create_appointment, get_appointments_by_date, get_appointments_by_client, get_appointments_by_tech
 from nailmanagement.app.api.shop_services import add_service, get_shop_services, remove_shop_service, update_shop_service
 from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out, complete_invite
 from nailmanagement.app.api.shops import add_shop_skill, get_shop_info, get_owner_shops, get_shop_commission_total, get_shop_skills, remove_shop_skill, update_shop_info, get_shop_appointments, add_new_tech, register as shop_register
 from nailmanagement.app.api.skills import add_skill, get_skills, get_skills_by_name
 from nailmanagement.app.api.techs import add_tech_skills, clock_out_tech, generate_new_pin, get_tech_attendance, get_tech_shops, clock_in_tech, remove_tech_skill, verify_tech_pin
-from nailmanagement.app.api.clients import create_new_client
+from nailmanagement.app.api.clients import create_new_client, get_client, update_client
 BASE_URL = "api"
 AUTH_BASE_URL = f"{BASE_URL}/auth"
 SHOP_BASE_URL = f"{BASE_URL}/shops"
 SKILL_BASE_URL = f"{BASE_URL}/skills"
 TECH_BASE_URL = f"{BASE_URL}/techs"
-APPOINTMENT_BASE_URL = f"{BASE_URL}/shops/<int:shop_id>/appointments"
+APPOINTMENT_BASE_URL = f"{SHOP_BASE_URL}/<int:shop_id>/appointments"
 CLIENT_BASE_URL = f"{SHOP_BASE_URL}/<int:shop_id>/clients"
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -77,8 +77,14 @@ urlpatterns = [
     path(f"{TECH_BASE_URL}/skills/<int:shop_id>/remove/<int:skill_id>/", remove_tech_skill),
     #appointments
     path(f"{APPOINTMENT_BASE_URL}/create/", create_appointment),
-    path(f"{APPOINTMENT_BASE_URL}/get/day/", get_appointment_by_date),
-    path(f"{APPOINTMENT_BASE_URL}/get/client/", get_appointment_by_client),
+    path(f"{APPOINTMENT_BASE_URL}/get/day/", get_appointments_by_date),
+    path(f"{APPOINTMENT_BASE_URL}/get/client/", get_appointments_by_client),
+    path(f"{APPOINTMENT_BASE_URL}/get/tech/", get_appointments_by_tech),
+    path(f"{APPOINTMENT_BASE_URL}/get/<int:appointment_id>/", get_appointment),
+    path(f"{APPOINTMENT_BASE_URL}/update/<int:appointment_id>/", update_appointment),
+
     #clients
     path(f"{CLIENT_BASE_URL}/create/", create_new_client),
+    path(f"{CLIENT_BASE_URL}/get/", get_client),
+    path(f"{CLIENT_BASE_URL}/update/<int:client_id>/", update_client)
     ]

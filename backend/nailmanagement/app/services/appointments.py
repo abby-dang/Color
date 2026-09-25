@@ -91,7 +91,7 @@ class Appointments:
                 self.supabase.table("appointments").delete().eq("appointment_id", appointment["appointment_id"]).execute()
                 raise
 
-            return appointment
+            return appointment_response.data
         except Exception as e:
             raise Exception(f"Error creating appointment: {str(e)}")
 
@@ -235,7 +235,26 @@ class Appointments:
             print(f"Error retrieving appointment infomration based on the tech_id given")
             raise e
 
-    def update_appointment(self, uuid: str, shop_id: int, appointment_id: int, notes: str = None, services: list = None, status: str = None, date: str = None, time: str = None):
+    def get_appointment(self, uuid: str, shop_id: int, appointment_id: int):
+        try:
+            if not is_authorized(uuid, shop_id):
+                raise ValueError("User not authorized")
+
+            response = (
+                self.supabase.table("appointments")
+                .select(f"{self.appointment_fields}, appointment_services(shop_services(name), techs(users(first_name, last_name)))")
+                .eq("appointment_id", appointment_id)
+                .execute()
+            )
+
+            return response.data
+
+        except Exception as e:
+            print(f"Error retrieving appointment information")
+            raise e
+            
+
+    def update_appointment(self, uuid: str, shop_id: int, appointment_id: int,  notes: str = None, services: list = None, status: str = None, date: str = None, time: str = None):
         """
         Updates an existing appointment.
 
@@ -267,7 +286,7 @@ class Appointments:
                 to update
             Exception: if a database update fails
         """
-        def update_appointment_services(appointment_id: int, services: list):
+        def update_appointment_services():
             """
             Replaces the appointment_services rows for an appointment.
 
@@ -319,68 +338,26 @@ class Appointments:
                 raise ValueError("Unauthorized Access")
 
             update_data = {}
-            if status is not None:
-                if status not in ["pending", "confirmed", "completed", "cancelled", "in_progress"]:
-                    raise ValueError("Invalid status value. Must be one of: pending, confirmed, completed, cancelled, in_progress")
-                update_data["status"] = status
-            if notes is not None:
+            if notes:
                 update_data["notes"] = notes
-            if services is not None and not services:
-                raise ValueError("At least one service is required")
+            if status:
+                update_data["status"] = status
+            if date and time:
+                update_data["datetime"] = convert_date_time(date, time)
+            elif date or time:
+                raise ValueError("Must have both date and time")
 
-            if date is not None or time is not None:
-                if date is None or time is None:
-                    # Fill in the missing half from the stored (UTC) datetime, in local time
-                    current = (
-                        self.supabase.table("appointments")
-                        .select("datetime")
-                        .eq("appointment_id", appointment_id)
-                        .eq("shop_id", shop_id)
-                        .execute()
-                    ).data
-                    if not current:
-                        raise ValueError("Appointment not found")
-                    current_local = datetime.fromisoformat(current[0]["datetime"]).astimezone()
-                    if date is None:
-                        date = current_local.strftime("%Y-%m-%d")
-                    if time is None:
-                        time = current_local.strftime("%H:%M")
+            response = (
+                self.supabase.table("appointments")
+                .update(update_data)
+                .eq("appointment_id", appointment_id)
+                .execute()
+            )
 
-                # Parsed as server-local time, then converted to UTC for storage
-                new_datetime = convert_date_time(date, time)
-                update_data["datetime"] = new_datetime.astimezone(timezone.utc).isoformat()
-
-            if not update_data and services is None:
-                raise ValueError("No fields to update provided")
-
-            response_data = []
-            if not update_data:
-                # Services-only update: make sure the appointment belongs to this shop
-                response_data = (
-                    self.supabase.table("appointments")
-                    .select("appointment_id")
-                    .eq("appointment_id", appointment_id)
-                    .eq("shop_id", shop_id)
-                    .execute()
-                ).data
-                if not response_data:
-                    raise ValueError("Appointment not found")
-            else:
-                response = (
-                    self.supabase.table("appointments")
-                    .update(update_data)
-                    .eq("appointment_id", appointment_id)
-                    .eq("shop_id", shop_id)
-                    .execute()
-                )
-                response_data = response.data
-                if not response_data:
-                    raise ValueError("Appointment not found")
-
-            if services is not None:
-                update_appointment_services(appointment_id, services)
-
-            return response_data
+            if services:
+                update_appointment_services()
+                
+            return response.data
 
         except Exception as e:
             print(f"Error updating appointment: {e}")

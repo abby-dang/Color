@@ -40,6 +40,7 @@ def get_client(request, shop_id):
 
             return JsonResponse({"Error": str(e)}, status = 400)
 
+@csrf_exempt
 def update_client(request, shop_id, client_id):
     if request.method == "PUT":
         try:
