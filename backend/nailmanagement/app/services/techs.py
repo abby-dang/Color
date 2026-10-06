@@ -221,17 +221,20 @@ class Techs:
                 .execute().data[0]
             )
 
+            now = datetime.now(timezone.utc).isoformat()
             if verify_pin(pin, data['pin_hash']):
                 response = (
                     supabase.table("tech_attendance")
                     .insert({
                         "tech_id": data["tech_id"],
                         "shop_id": shop_id,
-                        "check_in": datetime.datetime.now().isoformat()
+                        "check_in": now
                     })
                     .execute()
                 )
-
+            else:
+                raise ValueError("Invalid pin")
+            
             return response
 
         except Exception as e:
@@ -286,10 +289,11 @@ class Techs:
 
             attendance_record = attendance_record[0]
 
+            now = datetime.now(timezone.utc).isoformat()
             # Update the check-out time
             response = (
                 supabase.table("tech_attendance")
-                .update({"check_out": datetime.datetime.now().isoformat()})
+                .update({"check_out": now})
                 .eq("attendance_id", attendance_record["attendance_id"])
                 .execute()
             )

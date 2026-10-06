@@ -92,7 +92,7 @@ def is_user(uuid: str) -> bool:
 def is_owner(uuid: str, shop_id: int) -> bool:
     user_id = get_user_id(uuid)
     owner_id = get_owner_id(shop_id)
-    if user_id != owner_id:
+    if user_id != owner_id or user_id == -1 or owner_id == -1:
         return False
     return True
 

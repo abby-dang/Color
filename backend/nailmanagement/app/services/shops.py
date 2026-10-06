@@ -1,7 +1,7 @@
 from nailmanagement.app.db.supabase_client import supabase
 import time
 from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays, verify_date_format
-from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_tech
+from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_owner, is_tech, is_user
 from nailmanagement.app.services.techs import Techs
 from datetime import datetime
 class Shops:
@@ -27,8 +27,11 @@ class Shops:
             dict: Newly registered shop record 
         
         Raises: 
+            ValueError: If the user already exists
             Exception: If database insert fails
         """
+        if not is_user(uuid):
+            raise ValueError("User not found")
         #CHECK NAME
         if len(name) > 100:
             raise ValueError("Name of shop is too long")
@@ -51,7 +54,7 @@ class Shops:
             raise ValueError("Invalid days for closing or opening days")
         
         hashed_pin = hash_pin(pin)
-
+       
 
         try:
             user_id = get_user_id(uuid)
@@ -135,25 +138,25 @@ class Shops:
                         supabase.table("shops")
                         .select("shop_id, owner_id, name, address, email, phone, open_t, close_t, open_d, close_d")
                         .eq("shop_id", shopID)
-                        .execute().data
+                        .execute()
                     )
-                    if not response: 
+                    if not response.data: 
                         raise ValueError("Shop not found")
-                    
-                    return response
+
+                    return response.data[0]
             
             response = (
                 supabase.table("shops")
                 .select("name, address, email, phone, open_t, close_t, open_d, close_d")
                 .eq("shop_id", shopID)
-                .execute().data[0]
+                .execute()
             )
 
-            if not response: 
+            if not response.data: 
                 raise ValueError("Shop not found")
 
-            return response
-
+            return response.data[0]
+    
         except Exception as e:
 
             print(f"Error retrieving shop information for {shopID}")

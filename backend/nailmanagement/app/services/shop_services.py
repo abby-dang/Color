@@ -190,12 +190,13 @@ class Shop_Services:
             )
 
             if skill_ids is not None:
-                skills_update = self.update_service_skills(service_id, skill_ids)
+                self.update_service_skills(service_id, skill_ids)
 
-            if response.data and skills_update:
+            if response.data:
                 return {"Message": "Service updated successfully."}
             else:
                 return {"Message": "Service not found or no changes made."}
+
         
         except Exception as e:
             print(f"Error updating service in shop {shop_id}: {e}")
