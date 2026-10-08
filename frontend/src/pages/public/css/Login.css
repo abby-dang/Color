@@ -1,13 +1,373 @@
-.page {
+.login {
+    --plum: #2A1A2F;
+    --ink: #241A28;
+    --muted: #5E5563;
+    --faint: #8A8190;
+    --ground: #F7F4F6;
+    --line: #CFC6CD;
+    --accent: #B4235A;
+    --accent-hover: #9E1F4F;
+    --link: #9E1F4F;
+    --link-hover: #6F1236;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+
+    min-height: 100svh;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 50px;
+    flex-wrap: wrap;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: normal;
+    text-align: left;
+    color: var(--ink);
+    background: var(--ground);
+    color-scheme: light;
 }
 
-.pop-up {
-    background-color: white;
-    border-radius: 16px;
-    padding: 50px;
-    width: fit-content;
+.login a {
+    color: var(--link);
+}
+
+.login a:hover {
+    color: var(--link-hover);
+}
+
+/* Brand panel */
+
+.login-brand {
+    flex: 1 1 440px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 48px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+    background: var(--plum);
+    color: #F7F1F5;
+}
+
+.login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.login-logo span {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+}
+
+.logo-mark {
+    display: block;
+    flex: none;
+}
+
+.login-pitch {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 460px;
+}
+
+.login-pitch h2 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: inherit;
+}
+
+.login-pitch p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: #D9CCD6;
+}
+
+.swatch-strip {
+    display: flex;
+    width: 240px;
+    max-width: 100%;
+    height: 6px;
+    margin-top: 8px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.swatch-strip span {
+    flex: 1;
+}
+
+.login-tagline {
+    font-size: 14px;
+    color: #BFAFBB;
+}
+
+/* Form */
+
+.login-main {
+    flex: 1 1 440px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 48px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.login-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.login-heading h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
+
+.login-heading p {
+    color: var(--muted);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.field-row a {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.field label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.field input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 16px;
+    background: #FFFFFF;
+    color: var(--ink);
+}
+
+.field input::placeholder {
+    color: var(--faint);
+}
+
+.field input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+}
+
+.field input[aria-invalid="true"] {
+    border: 2px solid var(--accent);
+}
+
+.password-wrap {
+    position: relative;
+}
+
+.password-wrap input {
+    padding-right: 52px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+}
+
+.login-submit {
+    height: 52px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.login-submit:hover {
+    background: var(--accent-hover);
+}
+
+.login-submit:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.login-submit:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--faint);
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #E3DCE1;
+}
+
+.login-register {
+    text-align: center;
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.login-register a {
+    font-weight: 600;
+}
+
+.login-error {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border: 1px solid #E9A7B6;
+    border-radius: 10px;
+    background: #FCE8EC;
+    color: #7A1230;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.login-error svg {
+    flex: none;
+}
+
+.login-error div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.login-error strong {
+    font-weight: 600;
+}
+
+.login-invite {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #EFE8EE;
+    color: #4A4050;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.login-invite svg {
+    flex: none;
+    margin-top: 1px;
+}
+
+/* Phone: the brand panel shrinks to a header with the logo and swatch strip */
+
+@media (max-width: 720px) {
+    .login {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    .login-brand {
+        flex: none;
+        padding: 40px 24px 28px;
+        gap: 16px;
+        justify-content: flex-start;
+    }
+
+    .login-logo span {
+        font-size: 20px;
+    }
+
+    .logo-mark {
+        width: 28px;
+        height: 28px;
+    }
+
+    .login-pitch h2,
+    .login-pitch p,
+    .login-tagline {
+        display: none;
+    }
+
+    .swatch-strip {
+        width: 160px;
+        height: 4px;
+        margin-top: 0;
+    }
+
+    .login-main {
+        flex: 1;
+        align-items: flex-start;
+        padding: 28px 24px 32px;
+    }
+
+    .login-form {
+        gap: 20px;
+    }
+
+    .login-heading h1 {
+        font-size: 30px;
+    }
 }
