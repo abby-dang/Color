@@ -13,10 +13,6 @@ def add_service(request, shop_id: int):
 
     Args:
         shop_id (int): The ID of the shop to add the service to
-        name (str): The name of the service
-        description (str): The description of the service
-        price (float): The price of the service
-        duration (int): The duration of the service in minutes
 
     Returns:
         dict: The newly added service record
@@ -28,12 +24,13 @@ def add_service(request, shop_id: int):
     uuid = request.supabase_user.user.id  # gets the user's uuid
     try:
         body = json.loads(request.body)
-        name = body.get("name")
-        description = body.get("description")
-        price = body.get("price")
-        duration = body.get("duration")
-
-        response = shop_services.add_service(uuid, shop_id, name, description, price, duration)
+        name = body["name"]
+        description = body["description"]
+        price = body["price"]
+        duration = body["duration"]
+        skill_ids = body.get("skill_ids", [])  # Optional: List of skill IDs associated with the service
+        print(f"Received skill_ids: {skill_ids}")  # Debugging line to check the received skill IDs
+        response = shop_services.add_service(uuid, shop_id, name, description, price, duration, skill_ids)
         return JsonResponse(response)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
@@ -104,8 +101,8 @@ def update_shop_service(request, shop_id: int, service_id: int):
         description = body.get("description")
         price = body.get("price")
         duration = body.get("duration")
-
-        response = shop_services.update_service(uuid, shop_id, service_id, name, description, price, duration)
+        skill_ids = body.get("skills_ids", [])
+        response = shop_services.update_service(uuid, shop_id, service_id, name, description, price, duration, skill_ids)
         return JsonResponse(response)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)

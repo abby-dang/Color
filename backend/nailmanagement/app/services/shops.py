@@ -1,7 +1,7 @@
 from nailmanagement.app.db.supabase_client import supabase
 import time
 from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays, verify_date_format
-from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_tech
+from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_owner, is_tech, is_user
 from nailmanagement.app.services.techs import Techs
 from datetime import datetime
 class Shops:
@@ -27,8 +27,11 @@ class Shops:
             dict: Newly registered shop record 
         
         Raises: 
+            ValueError: If the user already exists
             Exception: If database insert fails
         """
+        if not is_user(uuid):
+            raise ValueError("User not found")
         #CHECK NAME
         if len(name) > 100:
             raise ValueError("Name of shop is too long")
@@ -51,7 +54,7 @@ class Shops:
             raise ValueError("Invalid days for closing or opening days")
         
         hashed_pin = hash_pin(pin)
-
+       
 
         try:
             user_id = get_user_id(uuid)
@@ -105,40 +108,6 @@ class Shops:
             print(f"Error retrieving shop info for owner_id {ownerID}")
             raise e
 
-    #VIEWABLE TO TECHS
-    def get_tech_shops(self, uuid: str) -> list:
-        """
-        Returns a list of shops for a tech
-
-        Args:
-            uuid (str): user identification
-        Returns:
-            list: of the shop_id and name
-        Raises:
-            Exception: if invalid access or query fails
-        """
-        try:
-            userID = get_user_id(uuid)
-
-            if userID == -1:
-                raise ValueError("User not found")
-
-            response = (
-                supabase.table("techs")
-                .select("shops(shop_id, name)")
-                .eq("user_id", userID)
-                .execute()
-            )
-
-            if not response.data:
-                return []
-            
-            return response.data
-
-        except Exception as e:
-            print(f"Error retrieving shops for tech")
-            raise e  
-        
     #VIEWABLE TO PUBLIC, OWNER, AND TECHS
     def get_shop_info(self, shopID: int, uuid: str = None) -> dict:
         """
@@ -169,25 +138,25 @@ class Shops:
                         supabase.table("shops")
                         .select("shop_id, owner_id, name, address, email, phone, open_t, close_t, open_d, close_d")
                         .eq("shop_id", shopID)
-                        .execute().data
+                        .execute()
                     )
-                    if not response: 
+                    if not response.data: 
                         raise ValueError("Shop not found")
-                    
-                    return response
+
+                    return response.data[0]
             
             response = (
                 supabase.table("shops")
                 .select("name, address, email, phone, open_t, close_t, open_d, close_d")
                 .eq("shop_id", shopID)
-                .execute().data[0]
+                .execute()
             )
 
-            if not response: 
+            if not response.data: 
                 raise ValueError("Shop not found")
 
-            return response
-
+            return response.data[0]
+    
         except Exception as e:
 
             print(f"Error retrieving shop information for {shopID}")
@@ -390,57 +359,10 @@ class Shops:
 
         except Exception as e:
 
-            print(f"Error removing skill {skillID} from shop {shopID}")
+            print(f"Error removing skill {shop_skill_id} from shop {shopID}")
 
             raise e
 
-
-    #ONLY VIEWABLE TO OWNER AND TECHS
-    def get_shop_appointments(self, uuid: str, day: str, shopID: int) -> list:
-        """
-        Retrieves all appointments associated with a shop on a given day
-
-        Args:
-            uuid (str): user identification
-            day (datetime): the desired day 
-            shopID (int): shop identification number
-        
-        Returns:
-            list: a list of appointments' appointment_id, client_name, time, status
-        
-        Raises:
-            Exception: if querying fails
-        """
-        if not verify_date_format(day):
-            raise ValueError("Invalid date format. Please use YYYY-MM-DD.")
-
-        date_object = datetime.strptime(day, "%Y-%m-%d").date()
-
-        try:
-            userID = get_user_id(uuid)
-            if userID == -1:
-                raise ValueError("User not found")
-            
-            ownerID = get_owner_id(shopID)
-
-            if(is_tech(userID, shopID) == False) and (ownerID != userID):
-                raise ValueError("Invalid access")
-            
-            response = (
-                supabase.table("appointments")
-                .select("appointment_id, client_name, time, status")
-                .eq("shop_id", shopID)
-                .eq("day", date_object)
-                .execute()
-            )
-
-            return response.data
-
-        except Exception as e:
-
-            print(f"Error retrieving appointment information for shop {shopID}")
-
-            raise e
 
     #OWNER ONLY
     def update_shop_info(self, uuid: str, shopID: int, pin: str, name: str, phone: str, address: str, email: str, open_t: time, close_t: time, close_d: str, open_d: str):
@@ -515,6 +437,21 @@ class Shops:
     
 
     def add_new_tech(self, uuid: str, shop_id: int, email: str, commission_rate: int):
+        """
+        Adds a new tech to the shop. If the tech already exists, they will be added to the shop. If not, an invitation will be sent to the provided email.
+        
+        Args:
+            uuid (str): user identification
+            shop_id (int): shop identification number
+            email (str): email of the tech to be added
+            commission_rate (int): commission rate for the tech
+            
+        Returns:
+            dict: If the tech already exists, returns the response from registering the tech. If not, returns a message indicating that an invitation was sent.
+        Raises:
+            ValueError: If the user is not found or if the user does not have access to the shop.
+            Exception: If there is an issue with the database query or invitation process.
+        """
         try:
             user_id = get_user_id(uuid)
             if user_id == -1:
@@ -538,7 +475,7 @@ class Shops:
                 return response
             
             else:
-                print(f"Tech does not exist")
+
                 invite = supabase.auth.admin.invite_user_by_email(
                     email,
                     options = {
@@ -548,8 +485,10 @@ class Shops:
                         }
                     }
                     )
-                print(f"The invite {invite}")
+  
                 return {"Message": "Invitation sent successfully"}
         except Exception as e:
             print(f"Error: {e}")
             raise e
+
+    

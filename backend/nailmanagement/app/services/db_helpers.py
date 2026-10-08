@@ -52,7 +52,7 @@ def get_owner_id(shop_id: int) -> int:
     except Exception as e:
         print(f"Error occurred while fetching owner ID for shop ID {shop_id}: {e}")
         return -1
-
+#TODO: FIX SO IT UUID INSTEAD OF USER_ID
 def is_tech(user_id: int, shop_id: int) -> bool:
     """
     Checks if a user is a tech for a given shop.
@@ -82,3 +82,58 @@ def is_tech(user_id: int, shop_id: int) -> bool:
     except Exception as e:
         print(f"Error occurred while checking if user {user_id} is a tech for shop {shop_id}: {e}")
         return False
+
+def is_user(uuid: str) -> bool:
+    user_id = get_user_id(uuid)
+    if user_id == -1:
+        return False
+    return True
+
+def is_owner(uuid: str, shop_id: int) -> bool:
+    user_id = get_user_id(uuid)
+    owner_id = get_owner_id(shop_id)
+    if user_id != owner_id or user_id == -1 or owner_id == -1:
+        return False
+    return True
+
+def is_receptionist(uuid: str, shop_id: int) -> bool:
+    user_id = get_user_id(uuid)
+
+    try:
+        response = (
+            supabase.table("receptionists")
+            .select("receptionist_id")
+            .eq("user_id", user_id)
+            .eq("shop_id", shop_id)
+            .execute()
+        )
+
+        if not response.data:
+            return False
+        return True
+    except Exception as e:
+        print(f"Error retrieving receptionist: {e}")
+        raise e
+
+def is_authorized(uuid: str, shop_id: int) -> bool:
+    if is_user(uuid) and (is_owner(uuid, shop_id) or is_receptionist(uuid, shop_id)):
+        return True
+    return False
+
+def is_client(client_id: int, shop_id: int) -> bool:
+    try:
+        response = (
+            supabase.table("clients")
+            .select("client_id")
+            .eq("client_id", client_id)
+            .eq("shop_id", shop_id)
+            .execute().data
+        )
+
+        if not response:
+            return False
+        return True
+
+    except Exception as e:
+        print(f"Error retrieving client: {e}")
+        raise e

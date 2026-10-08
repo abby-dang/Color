@@ -192,22 +192,6 @@ def get_shop_commission_total(request, shop_id):
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
 
-def get_shop_techs(request, shop_id):
-
-    if request.method == "GET":
-        uuid = request.supabase_user.user.id #gets the user's uuid
-
-        try:
-            response = shops.get_shop_techs(uuid, shop_id)
-
-            if response is None:
-                return JsonResponse({"Error": "There was an issue retrieving the shop technicians"}, status = 400)
-
-            return JsonResponse(response, safe=False)
-
-        except Exception as e:
-            return JsonResponse({"Error" : str(e)}, status = 400)
-
 def get_shop_appointments(request, shop_id, day):
 
     if request.method == "GET":

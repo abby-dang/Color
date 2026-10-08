@@ -221,17 +221,20 @@ class Techs:
                 .execute().data[0]
             )
 
+            now = datetime.now(timezone.utc).isoformat()
             if verify_pin(pin, data['pin_hash']):
                 response = (
                     supabase.table("tech_attendance")
                     .insert({
                         "tech_id": data["tech_id"],
                         "shop_id": shop_id,
-                        "check_in": datetime.datetime.now().isoformat()
+                        "check_in": now
                     })
                     .execute()
                 )
-
+            else:
+                raise ValueError("Invalid pin")
+            
             return response
 
         except Exception as e:
@@ -286,10 +289,11 @@ class Techs:
 
             attendance_record = attendance_record[0]
 
+            now = datetime.now(timezone.utc).isoformat()
             # Update the check-out time
             response = (
                 supabase.table("tech_attendance")
-                .update({"check_out": datetime.datetime.now().isoformat()})
+                .update({"check_out": now})
                 .eq("attendance_id", attendance_record["attendance_id"])
                 .execute()
             )
@@ -448,4 +452,30 @@ class Techs:
             print(f"Error removing skill for tech {user_id} in shop {shop_id} : {e}")
             raise e
 
+    def get_tech_profile(self, tech_id: int):
+        """
+        Retrieves a tech's profile.
+
+        Args:
+            tech_id (int): The tech's ID
+
+        Returns:
+            dict: The tech's first_name, last_name, email and phone
+
+        Raises:
+            Exception: if the tech is not found or the query fails
+        """
+        try:
+            user_profile = (
+                supabase.table("techs")
+                .select("users(first_name, last_name, email, phone)")
+                .eq("tech_id", tech_id)
+                .execute()
+            )
+
+            return user_profile.data[0]["users"]
+        except Exception as e: 
+            print(f"Error retrieving tech profile")
+            raise e
+            
     
