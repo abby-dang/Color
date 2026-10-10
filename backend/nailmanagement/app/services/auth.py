@@ -41,7 +41,7 @@ class UserAuthentication:
             )
             
             if auth.user is None:
-                print("Error registering account")
+                raise ValueError("Error registering account")
 
             uuid = auth.user.id
 
@@ -55,7 +55,7 @@ class UserAuthentication:
             return response.data[0]
         
         except Exception as e:
-            print("Error completing account registration")
+            print(f"Error completing account registration, {e}")
             raise e
 
 

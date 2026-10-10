@@ -4,6 +4,9 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import Login from './pages/public/Login'
+import Register from './pages/public/Register'
+import RegisterSuccess from './pages/public/RegisterSuccess'
+import JoinShop from './pages/public/JoinShop'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 function App() {
@@ -14,6 +17,9 @@ function App() {
       <Routes>
         {/* Public */}
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/register/success" element={<RegisterSuccess />} />
+        <Route path="/invite" element={<JoinShop />} />
       </Routes>
     </BrowserRouter>
     // <>

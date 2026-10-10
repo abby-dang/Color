@@ -1,0 +1,42 @@
+/* Design tokens shared by every page. Import once in main.jsx, after index.css */
+
+:root {
+    /* Colors */
+    --color-plum: #2A1A2F;
+    --color-plum-text: #F7F1F5;
+    --color-plum-muted: #D9CCD6;
+    --color-plum-faint: #BFAFBB;
+    --color-ink: #241A28;
+    --color-muted: #5E5563;
+    --color-faint: #8A8190;
+    --color-ground: #F7F4F6;
+    --color-surface: #FFFFFF;
+    --color-line: #CFC6CD;
+    --color-line-soft: #E3DCE1;
+    --color-tint: #EFE8EE;
+    --color-accent: #B4235A;
+    --color-accent-hover: #9E1F4F;
+    --color-link: #9E1F4F;
+    --color-link-hover: #6F1236;
+    --color-success: #1F6F68;
+    --color-success-bg: #DDF0EC;
+    --color-danger: #7A1230;
+    --color-danger-bg: #FCE8EC;
+    --color-danger-line: #E9A7B6;
+
+    /* Polish swatches used in the logo and color strip */
+    --swatch-berry: #E04A7A;
+    --swatch-peach: #F2A07B;
+    --swatch-nude: #F4D6C8;
+    --swatch-lilac: #9C7BD8;
+    --swatch-sage: #5BA7A0;
+
+    /* Type */
+    --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+
+    /* Shape */
+    --radius: 10px;
+    --field-height: 48px;
+    --button-height: 52px;
+}

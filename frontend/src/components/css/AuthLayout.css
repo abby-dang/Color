@@ -1,0 +1,262 @@
+.auth {
+    min-height: 100svh;
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: normal;
+    text-align: left;
+    color: var(--color-ink);
+    background: var(--color-ground);
+    color-scheme: light;
+}
+
+.auth a {
+    color: var(--color-link);
+}
+
+.auth a:hover {
+    color: var(--color-link-hover);
+}
+
+/* Brand panel */
+
+.auth-brand {
+    flex: 1 1 440px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 48px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+    background: var(--color-plum);
+    color: var(--color-plum-text);
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-logo span {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+}
+
+.logo-mark {
+    display: block;
+    flex: none;
+}
+
+.auth-pitch {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 460px;
+}
+
+.auth-pitch-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.auth-pitch h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: inherit;
+}
+
+.auth-pitch p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-plum-muted);
+}
+
+.swatch-strip {
+    display: flex;
+    width: 240px;
+    max-width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.swatch-strip span {
+    flex: 1;
+}
+
+.auth-tagline {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-plum-faint);
+}
+
+/* Content side */
+
+.auth-main {
+    flex: 1 1 440px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 48px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Building blocks shared by the forms on these pages */
+
+.auth-form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.auth-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.auth-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.auth-heading h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+}
+
+.auth-heading p {
+    margin: 0;
+    color: var(--color-muted);
+}
+
+.auth .auth-submit {
+    height: var(--button-height);
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--color-accent);
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.auth .auth-submit:hover {
+    background: var(--color-accent-hover);
+    color: #FFFFFF;
+}
+
+.auth-submit:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+}
+
+.auth-submit:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--color-faint);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--color-line-soft);
+}
+
+.auth-switch {
+    margin: 0;
+    text-align: center;
+    font-size: 15px;
+    color: var(--color-muted);
+}
+
+.auth-switch a {
+    font-weight: 600;
+}
+
+/* Phone: the brand panel shrinks to a header with the logo and swatch strip */
+
+@media (max-width: 720px) {
+    .auth {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    .auth-brand {
+        flex: none;
+        padding: 40px 24px 28px;
+        gap: 16px;
+        justify-content: flex-start;
+    }
+
+    .auth-logo span {
+        font-size: 20px;
+    }
+
+    .auth-logo .logo-mark {
+        width: 28px;
+        height: 28px;
+    }
+
+    .auth-pitch-content,
+    .auth-tagline {
+        display: none;
+    }
+
+    .swatch-strip {
+        width: 160px;
+        height: 4px;
+    }
+
+    .auth-main {
+        flex: 1;
+        align-items: flex-start;
+        padding: 28px 24px 32px;
+    }
+
+    .auth-form {
+        gap: 20px;
+    }
+
+    .auth-heading h1 {
+        font-size: 30px;
+    }
+}

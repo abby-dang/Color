@@ -1,0 +1,177 @@
+.auth-form-wide {
+    max-width: 440px;
+    gap: 22px;
+}
+
+.name-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+/* Password rules checklist */
+
+.password-rules {
+    margin: 2px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 16px;
+    font-size: 14px;
+}
+
+.rule {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.rule svg {
+    flex: none;
+}
+
+.rule-met {
+    color: var(--color-success);
+}
+
+.rule-pending {
+    color: var(--color-muted);
+}
+
+.rule-missing {
+    color: var(--color-link);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* Owner setup steps */
+
+.setup-steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.step-number {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 1.5px solid #8F7C8C;
+    color: var(--color-plum-muted);
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-current .step-number {
+    border: 0;
+    background: var(--color-plum-text);
+    color: var(--color-plum);
+}
+
+.step-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 4px;
+}
+
+.step-text strong {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.step-text span {
+    font-size: 15px;
+    color: var(--color-plum-muted);
+}
+
+/* Light version of the steps, used on the success page */
+
+.setup-steps-card {
+    gap: 12px;
+}
+
+.setup-steps-card .step {
+    align-items: center;
+    gap: 12px;
+    color: var(--color-muted);
+}
+
+.setup-steps-card .step-number {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    border-color: var(--color-line);
+    color: var(--color-muted);
+}
+
+.setup-steps-card .step-current {
+    color: var(--color-ink);
+}
+
+.setup-steps-card .step-current .step-number {
+    background: var(--color-plum);
+    color: var(--color-plum-text);
+}
+
+.setup-steps-card .step-text {
+    padding-top: 0;
+}
+
+.setup-steps-card .step-text strong {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.next-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid var(--color-line-soft);
+    border-radius: 12px;
+    background: var(--color-surface);
+}
+
+.success-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 720px) {
+    .name-row {
+        gap: 12px;
+    }
+
+    .password-rules {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
