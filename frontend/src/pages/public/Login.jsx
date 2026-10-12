@@ -5,8 +5,11 @@ import AuthLayout from '../../components/AuthLayout'
 import TextField from '../../components/TextField'
 import PasswordField from '../../components/PasswordField'
 import Alert from '../../components/Alert'
-
+import { useAuth } from '../../context/useAuth'
+import { useNavigate } from 'react-router-dom'
 function Login() {
+    const { login } = useAuth()
+    const navigate = useNavigate()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
@@ -20,9 +23,14 @@ function Login() {
         try {
             const data = await loginUser(email, password)
             if (data.token) {
-                localStorage.setItem("token", data.token)
+                login(data)
+                // window.location.href = "/home"
+                navigate("/home")
+            } else {
+                //Supabase gives no session until the account's email is confirmed
+                setError("Please confirm your email before signing in.")
             }
-            //TODO: redirect to the owner's shops once that page exists
+            //TODO: redirect to the owner's shops once that page exists   
         } catch (err) {
             setError(err.message)
         } finally {

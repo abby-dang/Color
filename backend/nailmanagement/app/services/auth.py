@@ -67,6 +67,13 @@ class UserAuthentication:
             email (str): The user's email address
             password (str): The user's password
 
+        Returns:
+            dict: {"session": Supabase session (None if the email isn't confirmed),
+                   "user": Supabase auth user, "profile": the user's row from the users table}
+
+        Raises:
+            ValueError: If the user has no row in the users table
+            Exception: If Supabase rejects the credentials
         """
         try:
 
@@ -76,8 +83,19 @@ class UserAuthentication:
                     "password": password
                 }
             )
+            if response is None:
+                raise ValueError("Error signing in")
 
-            return response
+            profile = (
+                supabase.table("users")
+                .select("user_id", "email", "first_name", "last_name", "phone")
+                .eq("uuid", response.user.id)
+                .execute()
+            )
+            if not profile.data:
+                raise ValueError("Error fetching user profile")
+
+            return {"session": response.session, "user": response.user, "profile": profile.data[0]}
         
         except Exception as e:
 

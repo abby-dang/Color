@@ -710,9 +710,20 @@ class TestUserAuthentication:
         assert db.on("users", "insert")[0].first("insert")["uuid"] == "invited-uuid"
 
     def test_login(self, db, service):
-        db.auth.sign_in_with_password.return_value = "session"
-        assert service.login("a@b.com", "pw") == "session"
+        session = SimpleNamespace(access_token="token")
+        user = SimpleNamespace(id="auth-uuid")
+        db.auth.sign_in_with_password.return_value = SimpleNamespace(session=session, user=user)
+        profile = {"user_id": 1, "email": "a@b.com", "first_name": "Ann", "last_name": "Lee", "phone": "5551234567"}
+        db.returns("users", [profile])
+
+        assert service.login("a@b.com", "pw") == {"session": session, "user": user, "profile": profile}
         db.auth.sign_in_with_password.assert_called_once_with({"email": "a@b.com", "password": "pw"})
+
+    def test_login_without_profile_raises(self, db, service):
+        db.auth.sign_in_with_password.return_value = SimpleNamespace(session=None, user=SimpleNamespace(id="auth-uuid"))
+        db.returns("users", [])
+        with pytest.raises(ValueError, match="profile"):
+            service.login("a@b.com", "pw")
 
     def test_login_propagates_errors(self, db, service):
         db.auth.sign_in_with_password.side_effect = RuntimeError("Invalid login credentials")

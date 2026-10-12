@@ -75,9 +75,13 @@ def sign_in(request):
 
             response = auth.login(email, password)
             return JsonResponse({
-                "id": str(response.user.id),
-                "email": response.user.email,
-                "token": response.session.access_token if response.session else None
+                "id": str(response["user"].id),
+                "user_id": response["profile"]["user_id"],
+                "email": response["user"].email,
+                "first_name": response["profile"]["first_name"],
+                "last_name": response["profile"]["last_name"],
+                "phone": response["profile"]["phone"],
+                "token": response["session"].access_token if response["session"] else None
             })
         except Exception as e:
             return JsonResponse({"error": str(e)}, status = 400)

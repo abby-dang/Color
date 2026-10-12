@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Home from './pages/protected/Home'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -20,6 +21,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/register/success" element={<RegisterSuccess />} />
         <Route path="/invite" element={<JoinShop />} />
+        {/* Protected */}
+        <Route path="/home" element={<Home />} />
       </Routes>
     </BrowserRouter>
     // <>
