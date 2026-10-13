@@ -97,7 +97,7 @@ class Shops:
             #TODO: EDIT TO ALLOW PHOTO RETRIEVAL
             response = (
                 supabase.table("shops")
-                .select("shop_id, name")
+                .select("shop_id, name, address, email, phone, open_t, close_t, open_d, close_d")
                 .eq("owner_id", ownerID)
                 .execute()
             )

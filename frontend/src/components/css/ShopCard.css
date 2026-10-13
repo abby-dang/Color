@@ -1,0 +1,95 @@
+/* Stacks header, stats and buttons; the stats sit in a row and the buttons in a column */
+.shop-card{
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line-soft);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 10px;
+    box-sizing: border-box;
+    width: min(100%, 360px);
+    vertical-align: top;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: var(--font-body);
+    color: var(--color-ink);
+}
+
+.shop-card__header{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.shop-card__header__title{
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-ink);
+}
+.shop-card__header__info p{
+    margin: 0;
+    font-size: 15px;
+    color: var(--color-muted);
+}
+.shop-card__body{
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+/* Stat tiles */
+.shop-card__staff,
+.shop-card__appointments{
+    flex: 1 1 0;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    background-color: var(--color-ground);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.shop-card__staff p,
+.shop-card__appointments p{
+    margin: 0;
+}
+.shop-card__staff p:first-child,
+.shop-card__appointments p:first-child{
+    font-size: 13px;
+    color: var(--color-muted);
+}
+.shop-card__staff p:last-child,
+.shop-card__appointments p:last-child{
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.shop-card__buttons{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.shop-card__button{
+    min-height: 46px;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+/* "Open dashboard" is the primary action */
+.shop-card__button:first-child{
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-surface);
+}
+.shop-card__button:first-child:hover{
+    border-color: var(--color-accent-hover);
+    background-color: var(--color-accent-hover);
+}

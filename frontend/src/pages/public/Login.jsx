@@ -24,13 +24,11 @@ function Login() {
             const data = await loginUser(email, password)
             if (data.token) {
                 login(data)
-                // window.location.href = "/home"
                 navigate("/home")
             } else {
                 //Supabase gives no session until the account's email is confirmed
                 setError("Please confirm your email before signing in.")
             }
-            //TODO: redirect to the owner's shops once that page exists   
         } catch (err) {
             setError(err.message)
         } finally {
