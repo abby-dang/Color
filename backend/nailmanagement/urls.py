@@ -20,7 +20,7 @@ from nailmanagement.app.api.appointments import update_appointment, get_appointm
 from nailmanagement.app.api.shop_services import add_service, get_shop_services, remove_shop_service, update_shop_service
 from nailmanagement.app.api.auth import register as account_register
 from nailmanagement.app.api.auth import sign_in, sign_out, complete_invite
-from nailmanagement.app.api.shops import add_shop_skill, get_shop_info, get_owner_shops, get_shop_commission_total, get_shop_skills, remove_shop_skill, update_shop_info, get_shop_appointments, add_new_tech, register as shop_register
+from nailmanagement.app.api.shops import add_shop_skill, get_shop_info, get_owner_shops, get_shop_commission_total, get_shop_skills, remove_shop_skill, update_shop_info, get_shop_appointments, add_new_tech, get_tech_attendance_count, register as shop_register
 from nailmanagement.app.api.skills import add_skill, get_skills, get_skills_by_name
 from nailmanagement.app.api.techs import add_tech_skills, clock_out_tech, generate_new_pin, get_tech_attendance, get_tech_shops, clock_in_tech, remove_tech_skill, verify_tech_pin
 from nailmanagement.app.api.clients import create_new_client, get_client, update_client
@@ -46,6 +46,7 @@ urlpatterns = [
     path(f"{SHOP_BASE_URL}/update/<int:shop_id>/", update_shop_info),
     path(f"{SHOP_BASE_URL}/commissions/<int:shop_id>/", get_shop_commission_total),
     path(f"{SHOP_BASE_URL}/appointments/<int:shop_id>/date/<str:day>/", get_shop_appointments),
+    path(f"{SHOP_BASE_URL}/<int:shop_id>/attendance/count/", get_tech_attendance_count),
 
     #shop skills
     path(f"{SHOP_BASE_URL}/<int:shop_id>/skills/", get_shop_skills),

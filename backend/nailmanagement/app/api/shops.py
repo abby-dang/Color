@@ -228,3 +228,23 @@ def add_new_tech(request, shop_id):
 
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status = 400)
+def get_tech_attendance_count(request, shop_id):
+
+    if request.method == "GET":
+        uuid = request.supabase_user.user.id #gets the user's uuid
+        day = request.GET.get("day")
+        close_t = request.GET.get("close_t")
+
+        try:
+            if not day or not close_t:
+                return JsonResponse({"Error": "day and close_t are required"}, status = 400)
+
+            response = shops.get_tech_attendance_count(uuid, shop_id, day, close_t)
+
+            return JsonResponse({
+                "shop_id": shop_id,
+                "techs_clocked_in": response
+            })
+
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status = 400)

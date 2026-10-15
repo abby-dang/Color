@@ -1,9 +1,9 @@
 from nailmanagement.app.db.supabase_client import supabase
 import time
-from nailmanagement.app.services.utils import hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays, verify_date_format
+from nailmanagement.app.services.utils import convert_date, hash_pin, verify_pin, valid_phone, valid_email, valid_weekdays, verify_date_format, convert_date_time
 from nailmanagement.app.services.db_helpers import get_user_id, get_owner_id, is_owner, is_tech, is_user
 from nailmanagement.app.services.techs import Techs
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 class Shops:
 
     #EDITING SHOP INFO
@@ -489,6 +489,52 @@ class Shops:
                 return {"Message": "Invitation sent successfully"}
         except Exception as e:
             print(f"Error: {e}")
+            raise e
+
+    #VIEWABLE TO PUBLIC, OWNER, AND TECHS
+    def get_tech_attendance_count(self, uuid: str, shopID: int, day: str, close_t: str) -> int:
+        """
+        Counts the techs who clocked in at a shop during its open hours on a given day
+
+        Args:
+            uuid (str): user identification
+            shopID (int): shop identification number
+            day (str): e.g. "2026-09-20" or "09/20/2026"
+            close_t (str): when the shop closes, HH:MM or HH:MM:SS
+
+        Returns:
+            int: the number of different techs who clocked in between open_t and close_t.
+                A tech who clocked in more than once is counted once
+
+        Raises:
+            ValueError: if the day or a time is in an invalid format
+            Exception: if query fails
+        """
+        try:
+            if not is_owner(uuid, shopID):
+                raise ValueError("Invalid access")
+            
+            # Parsed as server-local time, then converted to UTC to match check_in
+            day_prior = datetime.strptime(convert_date(day), "%Y-%m-%d") - timedelta(days=1)
+            day_prior = day_prior.strftime("%Y-%m-%d")
+
+            day_start = convert_date_time(day_prior, close_t).astimezone(timezone.utc)
+            day_end = convert_date_time(day, close_t).astimezone(timezone.utc)
+
+            response = (
+                supabase.table("tech_attendance")
+                .select("tech_id")
+                .eq("shop_id", shopID)
+                .gte("check_in", day_start.isoformat())
+                .lte("check_in", day_end.isoformat())
+                .is_("check_out", None)  # Only consider techs who haven't checked out yet
+                .execute()
+            )
+
+            return len({record["tech_id"] for record in response.data})
+
+        except Exception as e:
+            print(f"Error retrieving tech attendance for shop {shopID} on {day}")
             raise e
 
     

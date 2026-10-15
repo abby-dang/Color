@@ -19,3 +19,11 @@ export const toLocalDateString = (date) => {
 
     return `${year}-${month}-${day}`;
 };
+
+export const convertTimeToRegularFormat = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+    return `${adjustedHours}:${String(minutes).padStart(2, '0')} ${period}`;
+    
+};

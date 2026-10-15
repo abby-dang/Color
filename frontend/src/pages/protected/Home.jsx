@@ -3,7 +3,7 @@ import {useAuth} from '../../context/useAuth'
 import {getTimePeriod, toLocalDateString} from '../../utils/date'
 import ShopCard from '../../components/ShopCard'
 import WorkCard from '../../components/WorkCard'
-import {getShopsOwned} from '../../api/shopApi'
+import {getShopsOwned, getTechAttendanceCount} from '../../api/shopApi'
 import {getTechShops} from '../../api/techApi'
 import {fetchTodayAppointments} from '../../api/appointmentApi'
 import {useState, useEffect} from 'react'
@@ -27,6 +27,13 @@ function Home() {
                 shops.map((shop) =>
                     fetchTodayAppointments(shop.shop_id, today)
                         .then((appointments) => ({ ...shop, appointments }))
+                    
+                    )
+            ))
+            .then((shops) => Promise.all(
+                shops.map((shop) =>
+                    getTechAttendanceCount(shop.shop_id, today, shop.close_t)
+                        .then((techs_clocked_in) => ({ ...shop, techs_clocked_in }))
                 )
             ))
             .then(setShopsOwned)

@@ -29,5 +29,22 @@ export const getShopInfo = async (shopId) => {
         const data = await response.json()
         throw new Error(getErrorMessage(data, "Failed to fetch shop info"))
     }
+
     return response.json()
+}
+
+//Counts techs still clocked in since the previous day's closing time. Owner only.
+//day is "YYYY-MM-DD" (use toLocalDateString), closeT is the shop's close_t, e.g. "19:00:00"
+export const getTechAttendanceCount = async (shopId, day, closeT) => {
+    const params = new URLSearchParams({ day, close_t: closeT })
+    const response = await fetch(`${BASE_URL}/shops/${shopId}/attendance/count/?${params}`, {
+        method: "GET",
+        headers: authHeaders(),
+    })
+    if (!response.ok) {
+        const data = await response.json()
+        throw new Error(getErrorMessage(data, "Failed to fetch techs clocked in"))
+    }
+    const data = await response.json()
+    return data.techs_clocked_in
 }
