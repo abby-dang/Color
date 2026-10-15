@@ -16,17 +16,15 @@ This NTMS is designed to solve the operational overhead of running a nail salon.
 - **Backend:** Python / Django
 - **Database & Auth:** Supabase (PostgreSQL)
 - **API Testing:** Postman
-- **Frontend (planned):** React
+- **Frontend:** React
 
 ## Key Features
-
-> **Note:** development so far has been entirely backend-focused. Everything below is implemented and tested via Postman. There is no frontend UI yet.
 
 - **User & shop registration** — end-to-end account creation logic linking authenticated users to shop records
 - **Relational database** — 11-table schema supporting secure, role-based data access
 - **Backend API** — 30+ endpoints built so far covering authentication and registration logic, tested with Postman as development continues
-- **Owner management logic (in progress)** — backend logic for staff management and shop editing across services, staff skill sets, and pricing
-- **Role-based access control (in progress)** — shop-level permission checks to distinguish owners, techs, and standard users when accessing a shop
+- **Owner management logic** — backend logic for staff management and shop editing across services, staff skill sets, and pricing
+- **Role-based access control** — shop-level permission checks to distinguish owners, techs, and standard users when accessing a shop
 
 ## My Role
 
@@ -35,18 +33,14 @@ I'm the sole developer on this project, working alongside a UX designer who hand
 - Backend API development (Django) and Supabase authentication integration
 - Business logic for registration, role permissions, and owner management features
 
-Frontend implementation (React) is planned next.
-
 ## Roadmap
 
 **Done:**
 - [x] Database schema design (11 tables)
 - [x] User & shop registration flows
-
+- [x] Backend API
+- [x] Role-based access control (owner, staff, anon)
 **In progress / planned:**
-- [ ] Backend API — additional endpoints still being built and tested via Postman (30+ completed so far)
-- [ ] Role-based access control (owner, tech, standard user)
-- [ ] New tech registration flow
 - [ ] Frontend build — React UI for registration, login, and owner dashboard
 - [ ] Owner management dashboard — frontend UI implementation
 - [ ] Shop PIN-based login for a shared queue dashboard, allowing nail techs, receptionists, and owners to view active queue order, technician priority, and skill-based service matching
