@@ -4,9 +4,7 @@
     border: 1px solid var(--color-line-soft);
     border-radius: 14px;
     padding: 24px;
-    margin: 10px;
     box-sizing: border-box;
-    width: min(100%, 360px);
     vertical-align: top;
     display: inline-flex;
     flex-direction: column;

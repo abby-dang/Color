@@ -1,0 +1,43 @@
+.work-card{
+    flex-direction: column;
+    background-color: var(--color-surface);
+    border-radius: 14px;
+    padding: 20px 24px;
+    border: 1px solid var(--color-line-soft);
+    box-sizing: border-box;
+    display: inline-flex;
+    gap: 20px;
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    vertical-align: top;
+}
+.work-card__title{
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--color-plum);
+    font-family: var(--font-body);
+    margin: 0;
+}
+/* Two classes so it outranks `.home-shops-container p` in Home.css, which sets 15px */
+.work-card .work-card__details{
+    font-size: 14px;
+    font-family: var(--font-body);
+    color: var(--color-muted);
+    font-weight: 400;
+}
+/* Outlined button, same as "View my day" in the NTMS Dashboards Home design */
+.work-card__button{
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}

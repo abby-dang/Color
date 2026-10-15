@@ -2,11 +2,11 @@ export const getTimePeriod = (date) => {
     const hours = date.getHours();
     
     if (hours < 12) {
-        return "Morning";
+        return "morning";
     } else if (hours < 18) {
-        return "Afternoon";
+        return "afternoon";
     } else {
-        return "Evening";
+        return "evening";
     }
 
 };
